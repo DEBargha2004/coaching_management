@@ -31,7 +31,7 @@ export default function Navbar ({ className }: { className?: string }) {
     >
       <Sheet open={sheet} onOpenChange={setSheet}>
         <SheetTrigger asChild>
-          <Button variant='ghost' className='px-2 rounded'>
+          <Button variant='ghost' className='px-2'>
             <AlignJustify />
           </Button>
         </SheetTrigger>
@@ -42,12 +42,13 @@ export default function Navbar ({ className }: { className?: string }) {
                 {item.type === 'link' ? (
                   <Link href={item.href} key={item.name}>
                     <NavItem
-                      shade={
+                      className={
                         pathName === item.href
                           ? 'bg-primary hover:bg-primary'
                           : ''
                       }
                     >
+                      {item.icon ? item.icon('h-5 w-5') : null}
                       {item.name}
                     </NavItem>
                   </Link>
@@ -65,8 +66,11 @@ export default function Navbar ({ className }: { className?: string }) {
                         value={item.href.split('/')[1]}
                         className='border-none'
                       >
-                        <AccordionTrigger className='hover:no-underline p-0'>
-                          {item.name}
+                        <AccordionTrigger className='hover:no-underline p-0 '>
+                          <div className='flex justify-start items-center gap-2'>
+                            {item.icon ? item.icon('h-5 w-5') : null}
+                            {item.name}
+                          </div>
                         </AccordionTrigger>
                         <AccordionContent>
                           {item.items?.map((accord_item, accord_item_idx) => (
@@ -76,7 +80,7 @@ export default function Navbar ({ className }: { className?: string }) {
                             >
                               <NavItem
                                 key={accord_item_idx}
-                                shade={
+                                className={
                                   pathName === accord_item.href
                                     ? 'bg-primary hover:bg-primary'
                                     : `hover:bg-stone-300 dark:hover:bg-stone-700`

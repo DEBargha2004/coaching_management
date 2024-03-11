@@ -3,16 +3,16 @@ import { ClassValue } from 'clsx'
 
 export default function NavItem ({
   children,
-  shade
+  className
 }: {
   children: React.ReactNode
-  shade?: string | undefined
+  className?: string | undefined
 }) {
   return (
     <div
       className={cn(
-        'py-3 px-3 hover:bg-muted rounded-md my-2 transition-all',
-        shade
+        'py-3 px-3 hover:bg-muted rounded-md my-2 transition-all flex justify-start items-center gap-2',
+        className
       )}
     >
       {children}

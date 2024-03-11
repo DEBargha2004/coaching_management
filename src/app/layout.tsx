@@ -4,6 +4,8 @@ import './globals.css'
 import { ThemeProvider } from '@/providers/theme-provider'
 import Navbar from '@/components/custom/navbar'
 import NavigationHelper from '@/components/custom/navigation-helper'
+import { ClerkProvider } from '@clerk/nextjs'
+import { auth } from '@clerk/nextjs/server'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -17,24 +19,33 @@ export default function RootLayout ({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const { userId } = auth()
   return (
-    <html lang='en'>
-      <body className={inter.className}>
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='dark'
-          enableSystem
-          disableTransitionOnChange
-        >
-          <section className='min-h-screen'>
-            <main className='h-[10%]'>
-              <Navbar className='h-full p-4' />
-            </main>
-            <main className='h-[90%]'>{children}</main>
-          </section>
-          <NavigationHelper />
-        </ThemeProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang='en'>
+        <body className={inter.className}>
+          <ThemeProvider
+            attribute='class'
+            defaultTheme='dark'
+            enableSystem
+            disableTransitionOnChange
+          >
+            {userId ? (
+              <>
+                <section className='min-h-screen'>
+                  <main className='h-[10%]'>
+                    <Navbar className='h-full p-4' />
+                  </main>
+                  <main className='h-[90%]'>{children}</main>
+                </section>
+                <NavigationHelper />
+              </>
+            ) : (
+              children
+            )}
+          </ThemeProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }

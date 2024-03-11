@@ -52,7 +52,9 @@ model Teacher {
   sex              String
   primary_language String
   created_at       DateTime @default(now())
+  salary           Float
 
+  subjects       SubjectTeachers[]
   batch_teachers BatchTeachers[]
   stay_duration  TeacherStayDuration[]
 }
@@ -158,7 +160,20 @@ model Subject {
   subject_name String
   created_at   DateTime @default(now())
 
+  subject_teachers SubjectTeachers[]
+
   batches BatchSubjects[]
+}
+
+model SubjectTeachers {
+  subject_id String
+  teacher_id String
+  created_at DateTime @default(now())
+
+  subject Subject @relation(fields: [subject_id], references: [subject_id])
+  teacher Teacher @relation(fields: [teacher_id], references: [teacher_id])
+
+  @@id([subject_id, teacher_id])
 }
 
 model Syllabus {
