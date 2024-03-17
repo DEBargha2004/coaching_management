@@ -7,7 +7,12 @@ import {
   ContextMenuItem,
   ContextMenuTrigger
 } from '@/components/ui/context-menu'
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTrigger
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import {
   Select,
@@ -26,38 +31,71 @@ import {
 } from '@/components/ui/table'
 import { teacherBoardList } from '@/constants/teacher-board'
 import { cn } from '@/lib/utils'
-import getTeachersInitial from '@/server-actions/get-teachers'
+import { getTeachers } from '@/server-actions/get-teachers'
 import { useTeachersStore } from '@/store/teachers-store'
 import { useUser } from '@clerk/nextjs'
 import { Eye, Pen, User2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useThrottle } from '@uidotdev/usehooks'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
+import { teacherEntrySchema } from '@/schema/entry-form/teacher'
+import { zodResolver } from '@hookform/resolvers/zod'
+import TeacherEntryForm from '@/components/custom/teacher-entry-form'
+import { addTeacher } from '@/server-actions/add-teacher'
+import { useToast } from '@/components/ui/use-toast'
 
 export default function Page () {
   const [search, setSearch] = useState('')
   const [sortParam, setSortParam] = useState('')
   const throttledSearch = useThrottle(search, 500)
   const throttledSortParam = useThrottle(sortParam, 500)
+  const [formDialogBoxState, setFormDialogBoxState] = useState({
+    open: false
+  })
+  const { toast } = useToast()
 
-  const { setTeachersBoard, teachers_board } = useTeachersStore()
+  const { setTeachersBoard, teachers_board, addTeachersBoard } =
+    useTeachersStore()
   const { user } = useUser()
+
+  const form = useForm<z.infer<typeof teacherEntrySchema>>({
+    resolver: zodResolver(teacherEntrySchema)
+  })
 
   const sortParamsList = useMemo(() => {
     return [
-      { name: 'Salary', value: 'salary' },
       {
         name: 'First Name',
         value: 'first_name'
-      }
+      },
+      { name: 'Salary', value: 'salary' }
     ] as {
       name: string
       value: string
     }[]
   }, [])
 
+  const handleFormSubmit = async (data: z.infer<typeof teacherEntrySchema>) => {
+    const serverMessage_addTeacher = await addTeacher(data)
+    setFormDialogBoxState({ open: false })
+    addTeachersBoard(state => {
+      state.teachers_board.push(...(serverMessage_addTeacher.result || []))
+    })
+    toast({
+      title: serverMessage_addTeacher.heading,
+      description: serverMessage_addTeacher.description,
+      variant:
+        serverMessage_addTeacher.status === 'success'
+          ? 'default'
+          : 'destructive'
+    })
+    form.reset()
+  }
+
   useEffect(() => {
     if (user?.id) {
-      getTeachersInitial({
+      getTeachers({
         search: throttledSearch,
         sortParam: throttledSortParam
       }).then(data => {
@@ -88,14 +126,23 @@ export default function Page () {
             </SelectContent>
           </Select>
         </div>
-        <Dialog>
+        <Dialog
+          onOpenChange={e => {
+            setFormDialogBoxState({ open: e })
+            form.reset()
+          }}
+          open={formDialogBoxState.open}
+        >
           <DialogTrigger asChild>
             <Button>
               <User2 className='mr-2 h-4 w-4' />
               Add
             </Button>
           </DialogTrigger>
-          <DialogContent></DialogContent>
+          <DialogContent>
+            <DialogHeader>Teacher Entry Form</DialogHeader>
+            <TeacherEntryForm form={form} onSubmit={handleFormSubmit} />
+          </DialogContent>
         </Dialog>
       </div>
       <div>

@@ -17,6 +17,7 @@ import {
 } from '../ui/accordion'
 import NavItem from './nav-item'
 import { usePathname } from 'next/navigation'
+import React from 'react'
 
 const Switch = dynamic(() => import('./switch'), { ssr: false })
 
@@ -38,9 +39,9 @@ export default function Navbar ({ className }: { className?: string }) {
         <SheetContent side={'left'}>
           <section className='my-10'>
             {navlist.map((item, index) => (
-              <>
+              <React.Fragment key={item.name}>
                 {item.type === 'link' ? (
-                  <Link href={item.href} key={item.name}>
+                  <Link href={item.href}>
                     <NavItem
                       className={
                         pathName === item.href
@@ -95,7 +96,7 @@ export default function Navbar ({ className }: { className?: string }) {
                     </Accordion>
                   </NavItem>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </section>
         </SheetContent>

@@ -1,0 +1,1111 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "5",
+  "dialect": "mysql",
+  "tables": {
+    "Batch": {
+      "name": "Batch",
+      "columns": {
+        "batch_id": {
+          "autoincrement": false,
+          "name": "batch_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "batch_name": {
+          "autoincrement": false,
+          "name": "batch_name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "medium": {
+          "autoincrement": false,
+          "name": "medium",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Batch_batch_id": {
+          "name": "Batch_batch_id",
+          "columns": [
+            "batch_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {}
+    },
+    "BatchStudents": {
+      "name": "BatchStudents",
+      "columns": {
+        "batch_id": {
+          "autoincrement": false,
+          "name": "batch_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "student_id": {
+          "autoincrement": false,
+          "name": "student_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "BatchStudents_batch_id_student_id": {
+          "name": "BatchStudents_batch_id_student_id",
+          "columns": [
+            "batch_id",
+            "student_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "BatchStudents_batch_id_fkey": {
+          "name": "BatchStudents_batch_id_fkey",
+          "tableFrom": "BatchStudents",
+          "tableTo": "Batch",
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "batch_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "BatchStudents_student_id_fkey": {
+          "name": "BatchStudents_student_id_fkey",
+          "tableFrom": "BatchStudents",
+          "tableTo": "Student",
+          "columnsFrom": [
+            "student_id"
+          ],
+          "columnsTo": [
+            "student_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "BatchSubjects": {
+      "name": "BatchSubjects",
+      "columns": {
+        "subject_id": {
+          "autoincrement": false,
+          "name": "subject_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "batch_id": {
+          "autoincrement": false,
+          "name": "batch_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "BatchSubjects_batch_id_subject_id": {
+          "name": "BatchSubjects_batch_id_subject_id",
+          "columns": [
+            "batch_id",
+            "subject_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "BatchSubjects_batch_id_fkey": {
+          "name": "BatchSubjects_batch_id_fkey",
+          "tableFrom": "BatchSubjects",
+          "tableTo": "Batch",
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "batch_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "BatchSubjects_subject_id_fkey": {
+          "name": "BatchSubjects_subject_id_fkey",
+          "tableFrom": "BatchSubjects",
+          "tableTo": "Subject",
+          "columnsFrom": [
+            "subject_id"
+          ],
+          "columnsTo": [
+            "subject_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "BatchTeachers": {
+      "name": "BatchTeachers",
+      "columns": {
+        "batch_id": {
+          "autoincrement": false,
+          "name": "batch_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "teacher_id": {
+          "autoincrement": false,
+          "name": "teacher_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "BatchTeachers_batch_id_teacher_id": {
+          "name": "BatchTeachers_batch_id_teacher_id",
+          "columns": [
+            "batch_id",
+            "teacher_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "BatchTeachers_batch_id_fkey": {
+          "name": "BatchTeachers_batch_id_fkey",
+          "tableFrom": "BatchTeachers",
+          "tableTo": "Batch",
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "batch_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "BatchTeachers_teacher_id_fkey": {
+          "name": "BatchTeachers_teacher_id_fkey",
+          "tableFrom": "BatchTeachers",
+          "tableTo": "Teacher",
+          "columnsFrom": [
+            "teacher_id"
+          ],
+          "columnsTo": [
+            "teacher_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "BatchTimings": {
+      "name": "BatchTimings",
+      "columns": {
+        "timing_id": {
+          "autoincrement": false,
+          "name": "timing_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "batch_id": {
+          "autoincrement": false,
+          "name": "batch_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_time": {
+          "autoincrement": false,
+          "name": "start_time",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_time": {
+          "autoincrement": false,
+          "name": "end_time",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "day": {
+          "autoincrement": false,
+          "name": "day",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "BatchTimings_timing_id": {
+          "name": "BatchTimings_timing_id",
+          "columns": [
+            "timing_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "BatchTimings_batch_id_fkey": {
+          "name": "BatchTimings_batch_id_fkey",
+          "tableFrom": "BatchTimings",
+          "tableTo": "Batch",
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "batch_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "BatchTopicStatus": {
+      "name": "BatchTopicStatus",
+      "columns": {
+        "batch_id": {
+          "autoincrement": false,
+          "name": "batch_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "topic_id": {
+          "autoincrement": false,
+          "name": "topic_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "autoincrement": false,
+          "name": "status",
+          "type": "enum('Complete','Pending','Incomplete')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "start_date": {
+          "autoincrement": false,
+          "name": "start_date",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "end_date": {
+          "autoincrement": false,
+          "name": "end_date",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "BatchTopicStatus_batch_id_topic_id": {
+          "name": "BatchTopicStatus_batch_id_topic_id",
+          "columns": [
+            "batch_id",
+            "topic_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "BatchTopicStatus_batch_id_fkey": {
+          "name": "BatchTopicStatus_batch_id_fkey",
+          "tableFrom": "BatchTopicStatus",
+          "tableTo": "Batch",
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "batch_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "BatchTopicStatus_topic_id_fkey": {
+          "name": "BatchTopicStatus_topic_id_fkey",
+          "tableFrom": "BatchTopicStatus",
+          "tableTo": "Topic",
+          "columnsFrom": [
+            "topic_id"
+          ],
+          "columnsTo": [
+            "topic_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "Payments": {
+      "name": "Payments",
+      "columns": {
+        "payment_id": {
+          "autoincrement": false,
+          "name": "payment_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "paymentExchange": {
+          "autoincrement": false,
+          "name": "paymentExchange",
+          "type": "enum('Received','Sent')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mode": {
+          "autoincrement": false,
+          "name": "mode",
+          "type": "enum('Cash','Online')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "autoincrement": false,
+          "name": "amount",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "member": {
+          "autoincrement": false,
+          "name": "member",
+          "type": "enum('Student','Teacher')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "member_id": {
+          "autoincrement": false,
+          "name": "member_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "paymentDate": {
+          "autoincrement": false,
+          "name": "paymentDate",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Payments_payment_id": {
+          "name": "Payments_payment_id",
+          "columns": [
+            "payment_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {}
+    },
+    "Student": {
+      "name": "Student",
+      "columns": {
+        "student_id": {
+          "autoincrement": false,
+          "name": "student_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "first_name": {
+          "autoincrement": false,
+          "name": "first_name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_name": {
+          "autoincrement": false,
+          "name": "last_name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dob": {
+          "autoincrement": false,
+          "name": "dob",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "autoincrement": false,
+          "name": "email",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone_number": {
+          "autoincrement": false,
+          "name": "phone_number",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "autoincrement": false,
+          "name": "address",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sex": {
+          "autoincrement": false,
+          "name": "sex",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "primary_language": {
+          "autoincrement": false,
+          "name": "primary_language",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Student_student_id": {
+          "name": "Student_student_id",
+          "columns": [
+            "student_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {
+        "Student_email_key": {
+          "name": "Student_email_key",
+          "columns": [
+            "email"
+          ]
+        }
+      }
+    },
+    "StudentStayDuration": {
+      "name": "StudentStayDuration",
+      "columns": {
+        "stay_id": {
+          "autoincrement": false,
+          "name": "stay_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "student_id": {
+          "autoincrement": false,
+          "name": "student_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "batch_id": {
+          "autoincrement": false,
+          "name": "batch_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "joining_date": {
+          "autoincrement": false,
+          "name": "joining_date",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "leaving_date": {
+          "autoincrement": false,
+          "name": "leaving_date",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "StudentStayDuration_stay_id": {
+          "name": "StudentStayDuration_stay_id",
+          "columns": [
+            "stay_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "StudentStayDuration_batch_id_fkey": {
+          "name": "StudentStayDuration_batch_id_fkey",
+          "tableFrom": "StudentStayDuration",
+          "tableTo": "Batch",
+          "columnsFrom": [
+            "batch_id"
+          ],
+          "columnsTo": [
+            "batch_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "StudentStayDuration_student_id_fkey": {
+          "name": "StudentStayDuration_student_id_fkey",
+          "tableFrom": "StudentStayDuration",
+          "tableTo": "Student",
+          "columnsFrom": [
+            "student_id"
+          ],
+          "columnsTo": [
+            "student_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "Subject": {
+      "name": "Subject",
+      "columns": {
+        "subject_id": {
+          "autoincrement": false,
+          "name": "subject_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_name": {
+          "autoincrement": false,
+          "name": "subject_name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Subject_subject_id": {
+          "name": "Subject_subject_id",
+          "columns": [
+            "subject_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {}
+    },
+    "SubjectTeachers": {
+      "name": "SubjectTeachers",
+      "columns": {
+        "subject_id": {
+          "autoincrement": false,
+          "name": "subject_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "teacher_id": {
+          "autoincrement": false,
+          "name": "teacher_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "SubjectTeachers_subject_id_teacher_id": {
+          "name": "SubjectTeachers_subject_id_teacher_id",
+          "columns": [
+            "subject_id",
+            "teacher_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "SubjectTeachers_subject_id_fkey": {
+          "name": "SubjectTeachers_subject_id_fkey",
+          "tableFrom": "SubjectTeachers",
+          "tableTo": "Subject",
+          "columnsFrom": [
+            "subject_id"
+          ],
+          "columnsTo": [
+            "subject_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "SubjectTeachers_teacher_id_fkey": {
+          "name": "SubjectTeachers_teacher_id_fkey",
+          "tableFrom": "SubjectTeachers",
+          "tableTo": "Teacher",
+          "columnsFrom": [
+            "teacher_id"
+          ],
+          "columnsTo": [
+            "teacher_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "Syllabus": {
+      "name": "Syllabus",
+      "columns": {
+        "syllabus_id": {
+          "autoincrement": false,
+          "name": "syllabus_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subject_id": {
+          "autoincrement": false,
+          "name": "subject_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "syllabus_name": {
+          "autoincrement": false,
+          "name": "syllabus_name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "class": {
+          "autoincrement": false,
+          "name": "class",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "board": {
+          "autoincrement": false,
+          "name": "board",
+          "type": "enum('CBSE','ICSE','TBSE','Other')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Syllabus_syllabus_id": {
+          "name": "Syllabus_syllabus_id",
+          "columns": [
+            "syllabus_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {}
+    },
+    "SyllabusTopic": {
+      "name": "SyllabusTopic",
+      "columns": {
+        "syllabus_id": {
+          "autoincrement": false,
+          "name": "syllabus_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "topic_id": {
+          "autoincrement": false,
+          "name": "topic_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "SyllabusTopic_syllabus_id_topic_id": {
+          "name": "SyllabusTopic_syllabus_id_topic_id",
+          "columns": [
+            "syllabus_id",
+            "topic_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "SyllabusTopic_syllabus_id_fkey": {
+          "name": "SyllabusTopic_syllabus_id_fkey",
+          "tableFrom": "SyllabusTopic",
+          "tableTo": "Syllabus",
+          "columnsFrom": [
+            "syllabus_id"
+          ],
+          "columnsTo": [
+            "syllabus_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        },
+        "SyllabusTopic_topic_id_fkey": {
+          "name": "SyllabusTopic_topic_id_fkey",
+          "tableFrom": "SyllabusTopic",
+          "tableTo": "Topic",
+          "columnsFrom": [
+            "topic_id"
+          ],
+          "columnsTo": [
+            "topic_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "Teacher": {
+      "name": "Teacher",
+      "columns": {
+        "teacher_id": {
+          "autoincrement": false,
+          "name": "teacher_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "first_name": {
+          "autoincrement": false,
+          "name": "first_name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_name": {
+          "autoincrement": false,
+          "name": "last_name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dob": {
+          "autoincrement": false,
+          "name": "dob",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "autoincrement": false,
+          "name": "email",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "phone_number": {
+          "autoincrement": false,
+          "name": "phone_number",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "autoincrement": false,
+          "name": "address",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sex": {
+          "autoincrement": false,
+          "name": "sex",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "primary_language": {
+          "autoincrement": false,
+          "name": "primary_language",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "salary": {
+          "autoincrement": false,
+          "name": "salary",
+          "type": "double",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Teacher_teacher_id": {
+          "name": "Teacher_teacher_id",
+          "columns": [
+            "teacher_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {
+        "Teacher_email_key": {
+          "name": "Teacher_email_key",
+          "columns": [
+            "email"
+          ]
+        }
+      }
+    },
+    "TeacherStayDuration": {
+      "name": "TeacherStayDuration",
+      "columns": {
+        "stay_id": {
+          "autoincrement": false,
+          "name": "stay_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "teacher_id": {
+          "autoincrement": false,
+          "name": "teacher_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "joining_date": {
+          "autoincrement": false,
+          "name": "joining_date",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "leaving_date": {
+          "autoincrement": false,
+          "name": "leaving_date",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "TeacherStayDuration_stay_id": {
+          "name": "TeacherStayDuration_stay_id",
+          "columns": [
+            "stay_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "TeacherStayDuration_teacher_id_fkey": {
+          "name": "TeacherStayDuration_teacher_id_fkey",
+          "tableFrom": "TeacherStayDuration",
+          "tableTo": "Teacher",
+          "columnsFrom": [
+            "teacher_id"
+          ],
+          "columnsTo": [
+            "teacher_id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {}
+    },
+    "Topic": {
+      "name": "Topic",
+      "columns": {
+        "topic_id": {
+          "autoincrement": false,
+          "name": "topic_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "syllabus_id": {
+          "autoincrement": false,
+          "name": "syllabus_id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "topic_name": {
+          "autoincrement": false,
+          "name": "topic_name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "default": "CURRENT_TIMESTAMP(3)",
+          "autoincrement": false,
+          "name": "created_at",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "Topic_topic_id": {
+          "name": "Topic_topic_id",
+          "columns": [
+            "topic_id"
+          ]
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "schemas": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}

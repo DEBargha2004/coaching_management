@@ -6,6 +6,7 @@ import Navbar from '@/components/custom/navbar'
 import NavigationHelper from '@/components/custom/navigation-helper'
 import { ClerkProvider } from '@clerk/nextjs'
 import { auth } from '@clerk/nextjs/server'
+import { Toaster } from '@/components/ui/toaster'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -43,6 +44,7 @@ export default function RootLayout ({
             ) : (
               children
             )}
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>
