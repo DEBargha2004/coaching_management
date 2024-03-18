@@ -24,7 +24,11 @@ export async function addTeacher (
       }
     }
     const existing_Teacher = await drizzle_orm
-      .select({ teacher_id: teacher.teacherId, email: teacher.email })
+      .select({
+        teacher_id: teacher.teacherId,
+        email: teacher.email,
+        phoneNumber: teacher.phoneNumber
+      })
       .from(teacher)
       .where(
         or(
@@ -33,10 +37,29 @@ export async function addTeacher (
         )
       )
     if (existing_Teacher.length) {
-      return {
-        status: 'error',
-        heading: 'Duplicate Email or Phone Number',
-        description: 'Teacher credentials already exists'
+      //check if email or phone number already exists
+      //check if email
+      const existing_email = existing_Teacher.find(
+        info => info.email === data.email
+      )
+      if (existing_email) {
+        return {
+          status: 'error',
+          heading: 'Duplicate Email',
+          description: 'Email already exists. Try with another email'
+        }
+      }
+      //check if phone number
+      const existing_phone = existing_Teacher.find(
+        info => info.phoneNumber === data.phoneNumber
+      )
+      if (existing_phone) {
+        return {
+          status: 'error',
+          heading: 'Duplicate Phone Number',
+          description:
+            'Phone number already exists. Try with another phone number'
+        }
       }
     }
 
