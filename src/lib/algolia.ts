@@ -8,3 +8,11 @@ const algoliaClient = algolia(
 export const teachers_index = algoliaClient.initIndex(
   process.env.ALGOLIA_TEACHERS_INDEX_NAME!
 )
+
+export const teachers_index_salary = algoliaClient.initIndex(
+  process.env.ALGOLIA_TEACHERS_SALARY_INDEX_NAME!
+)
+
+export const teachers_index_first_name = algoliaClient.initIndex(
+  process.env.ALGOLIA_TEACHERS_FIRST_NAME_INDEX_NAME!
+)

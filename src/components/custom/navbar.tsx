@@ -27,9 +27,7 @@ export default function Navbar ({ className }: { className?: string }) {
   const pathName = usePathname()
 
   return (
-    <div
-      className={cn('shadow-sm flex justify-between items-center', className)}
-    >
+    <div className={cn(' flex justify-between items-center', className)}>
       <Sheet open={sheet} onOpenChange={setSheet}>
         <SheetTrigger asChild>
           <Button variant='ghost' className='px-2'>
