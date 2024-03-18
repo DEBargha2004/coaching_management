@@ -104,7 +104,7 @@ export default function TeacherEntryForm ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className='flex justify-start items-center'>
-                  Phone{' '}
+                  Phone
                   <CustomTooltipTeacherEntry>
                     <div>
                       <p>This is the phone number of the teacher.</p>
@@ -118,7 +118,11 @@ export default function TeacherEntryForm ({
                     placeholder='9612105704'
                     {...field}
                     type='number'
-                    maxLength={10}
+                    onChange={e => {
+                      if (e.target.value.length <= 10) {
+                        field.onChange(e.target.value)
+                      }
+                    }}
                   />
                 </FormControl>
                 <FormMessage />
