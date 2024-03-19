@@ -48,6 +48,7 @@ import { addTeacher } from '@/server-actions/add-teacher'
 import { useToast } from '@/components/ui/use-toast'
 import { Skeleton } from '@/components/ui/skeleton'
 import removeTeacher from '@/server-actions/delete-teacher'
+import Link from 'next/link'
 
 export default function Page () {
   const [search, setSearch] = useState('')
@@ -79,13 +80,7 @@ export default function Page () {
   })
 
   const sortParamsList = useMemo(() => {
-    return [
-      {
-        name: 'First Name',
-        value: 'first_name'
-      },
-      { name: 'Salary', value: 'salary' }
-    ] as {
+    return [{ name: 'Salary', value: 'salary' }] as {
       name: string
       value: string
     }[]
@@ -142,7 +137,9 @@ export default function Page () {
 
   useEffect(() => {
     if (user?.id) {
-      getTeachersCount().then(count => setTeachersCount(count[0].count))
+      getTeachersCount().then(count =>
+        setTeachersCount(count ? count[0]?.count : 0)
+      )
     }
   }, [user])
   return (
@@ -181,7 +178,7 @@ export default function Page () {
               Add
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className=''>
             <DialogHeader>Teacher Entry Form</DialogHeader>
             <TeacherEntryForm form={form} onSubmit={handleFormSubmit} />
           </DialogContent>
@@ -198,9 +195,8 @@ export default function Page () {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {loading.teachers ? (
-              <>
-                {Array.from({ length: 5 }).map((_, index) => (
+            {loading.teachers
+              ? Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index}>
                     <TableCell>
                       <Skeleton className='h-6 w-6' />
@@ -211,87 +207,88 @@ export default function Page () {
                       </TableCell>
                     ))}
                   </TableRow>
-                ))}
-              </>
-            ) : (
-              teachers_board.map((teacher, teacher_idx) => (
-                <TableRow key={teacher.teacher_id}>
-                  <TableCell>{teacher_idx + 1}</TableCell>
-                  {teacherBoardList.map((item, index) => (
-                    <TableCell key={index} className='p-0 cursor-pointer'>
-                      <Dialog
-                        onOpenChange={e => {
-                          setDialogBoxState(prev => ({
-                            ...prev,
-                            delete_teacher: e
-                          }))
-                        }}
-                        open={dialogBoxState.delete_teacher}
-                      >
-                        <ContextMenu>
-                          <ContextMenuTrigger>
-                            <p className='w-full h-full p-4'>
-                              {item.beforeText}
-                              {teacher[item.value as keyof typeof teacher] ||
-                                '—'}
-                              {item.afterText}
-                            </p>
-                          </ContextMenuTrigger>
-                          <ContextMenuContent>
-                            <ContextMenuItem className='cursor-pointer'>
-                              <Eye className='mr-2 h-4 w-4' />
-                              View
-                            </ContextMenuItem>
-                            <ContextMenuItem className='cursor-pointer'>
-                              <Pen className='mr-2 h-4 w-4' />
-                              Edit
-                            </ContextMenuItem>
-                            <DialogTrigger asChild>
+                ))
+              : teachers_board?.map((teacher, teacher_idx) => (
+                  <TableRow key={teacher.teacher_id}>
+                    <TableCell>{teacher_idx + 1}</TableCell>
+                    {teacherBoardList.map((item, index) => (
+                      <TableCell key={index} className='p-0 cursor-pointer'>
+                        <Dialog
+                          onOpenChange={e => {
+                            setDialogBoxState(prev => ({
+                              ...prev,
+                              delete_teacher: e
+                            }))
+                          }}
+                          open={dialogBoxState.delete_teacher}
+                        >
+                          <ContextMenu>
+                            <ContextMenuTrigger>
+                              <p className='w-full h-full p-4'>
+                                {item.beforeText}
+                                {item.process(
+                                  teacher[item.value as keyof typeof teacher] ||
+                                    '—'
+                                )}
+                                {item.afterText}
+                              </p>
+                            </ContextMenuTrigger>
+                            <ContextMenuContent>
+                              <Link href={`/t/${teacher.teacher_id}`}>
+                                <ContextMenuItem className='cursor-pointer'>
+                                  <Eye className='mr-2 h-4 w-4' />
+                                  View
+                                </ContextMenuItem>
+                              </Link>
                               <ContextMenuItem className='cursor-pointer'>
-                                <Trash2 className='mr-2 h-4 w-4' />
-                                Remove
+                                <Pen className='mr-2 h-4 w-4' />
+                                Edit
                               </ContextMenuItem>
-                            </DialogTrigger>
-                          </ContextMenuContent>
-                        </ContextMenu>
-                        <DialogContent>
-                          <DialogHeader>Delete Teacher</DialogHeader>
-                          <DialogDescription>
-                            Are you sure want to delete {teacher.first_name}{' '}
-                            from your database? Remember this is an irreversible
-                            action.
-                          </DialogDescription>
-                          <DialogFooter>
-                            <Button
-                              onClick={() => {
-                                setDialogBoxState(prev => ({
-                                  ...prev,
-                                  delete_teacher: false
-                                }))
-                              }}
-                              variant={'secondary'}
-                            >
-                              Cancel
-                            </Button>
-                            <Button
-                              variant={'destructive'}
-                              onClick={() =>
-                                handleDeleteTeacher(teacher.teacher_id)
-                              }
-                            >
-                              {loading.delete_teacher ? (
-                                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                              ) : null}
-                              Delete
-                            </Button>
-                          </DialogFooter>
-                        </DialogContent>
-                      </Dialog>
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            )}
+                              <DialogTrigger asChild>
+                                <ContextMenuItem className='cursor-pointer'>
+                                  <Trash2 className='mr-2 h-4 w-4' />
+                                  Remove
+                                </ContextMenuItem>
+                              </DialogTrigger>
+                            </ContextMenuContent>
+                          </ContextMenu>
+                          <DialogContent>
+                            <DialogHeader>Delete Teacher</DialogHeader>
+                            <DialogDescription>
+                              Are you sure want to delete {teacher.first_name}{' '}
+                              from your database? Remember this is an
+                              irreversible action.
+                            </DialogDescription>
+                            <DialogFooter>
+                              <Button
+                                onClick={() => {
+                                  setDialogBoxState(prev => ({
+                                    ...prev,
+                                    delete_teacher: false
+                                  }))
+                                }}
+                                variant={'secondary'}
+                              >
+                                Cancel
+                              </Button>
+                              <Button
+                                variant={'destructive'}
+                                onClick={() =>
+                                  handleDeleteTeacher(teacher.teacher_id)
+                                }
+                              >
+                                {loading.delete_teacher ? (
+                                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                ) : null}
+                                Delete
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
           </TableBody>
         </Table>
       </div>

@@ -1,18 +1,18 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import './globals.css'
 import { ThemeProvider } from '@/providers/theme-provider'
 import Navbar from '@/components/custom/navbar'
 import NavigationHelper from '@/components/custom/navigation-helper'
 import { ClerkProvider } from '@clerk/nextjs'
 import { auth } from '@clerk/nextjs/server'
 import { Toaster } from '@/components/ui/toaster'
+import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Das Coaching',
-  description: 'Das Coaching - Admin Dashboard'
+  title: 'Sky Coaching',
+  description: 'Sky Coaching Center - Admin Dashboard'
 }
 
 export default function RootLayout ({

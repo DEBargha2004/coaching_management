@@ -30,6 +30,7 @@ import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog'
 import { CustomTooltipTeacherEntry } from './custom-tooltip-teacher-entry'
 import { Separator } from '../ui/separator'
 import { cn } from '@/lib/utils'
+import { teacher_membership_statuses } from '@/constants/membership-status'
 
 export default function TeacherEntryForm ({
   form,
@@ -268,14 +269,14 @@ export default function TeacherEntryForm ({
             </FormItem>
           )}
         />
-        <div className='grid grid-cols-3 gap-4'>
+        <div className='grid grid-cols-4 gap-2'>
           <FormField
             control={form.control}
             name='sex'
             render={({ field }) => (
               <FormItem>
                 <FormLabel className='flex justify-start items-center'>
-                  Sex{' '}
+                  Sex
                   <CustomTooltipTeacherEntry>
                     <div>
                       <p>Gender of the teacher.</p>
@@ -287,7 +288,7 @@ export default function TeacherEntryForm ({
                 <FormControl>
                   <Select value={field?.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder='Male' />
+                      <SelectValue placeholder='' />
                     </SelectTrigger>
                     <SelectContent>
                       {sexList.map(sex => (
@@ -353,6 +354,42 @@ export default function TeacherEntryForm ({
                     type='number'
                     onChange={e => field.onChange(parseInt(e.target.value))}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name='membership_status'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className='flex justify-start items-center'>
+                  Membership
+                  <CustomTooltipTeacherEntry>
+                    <div>
+                      <p>
+                        This is the membership status of the teacher. It is to
+                        define whether the teacher is currently a member or not.
+                      </p>
+                      <Separator className='my-2' />
+                      <p>Required</p>
+                    </div>
+                  </CustomTooltipTeacherEntry>
+                </FormLabel>
+                <FormControl>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger>
+                      <SelectValue className='' placeholder='Status' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {teacher_membership_statuses.map(status => (
+                        <SelectItem key={status.value} value={status.value}>
+                          {status.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>

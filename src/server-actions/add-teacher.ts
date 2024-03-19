@@ -66,7 +66,6 @@ export async function addTeacher (
     const teacher_id = `teach_${v4()}`
     //inserting into db
     await drizzle_orm.insert(teacher).values({
-      //@ts-ignore
       firstName: data.firstName,
       lastName: data.lastName,
       phoneNumber: data.phoneNumber,
@@ -76,7 +75,8 @@ export async function addTeacher (
       sex: data.sex,
       primaryLanguage: data.primaryLanguage,
       teacherId: teacher_id,
-      salary: data.salary
+      salary: data.salary,
+      membershipStatus: data.membership_status
     })
 
     //adding to algolia
@@ -89,7 +89,8 @@ export async function addTeacher (
         phone_number: data.phoneNumber,
         email: data.email,
         address: data.address,
-        salary: data.salary
+        salary: data.salary,
+        membership_status: data.membership_status
       })
       .wait()
 

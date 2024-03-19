@@ -9,7 +9,7 @@ import { drizzle_orm } from '@/lib/drizzle'
 import { teacher } from '@/schema/drizzle/schema'
 import { TeacherTypeBoard } from '@/store/teachers-store'
 import { SearchIndex } from 'algoliasearch'
-import { asc, desc, eq, or, lte, count } from 'drizzle-orm'
+import { asc, desc, count } from 'drizzle-orm'
 
 const getOrderByParam = (sortParam?: string) => {
   switch (sortParam) {
@@ -24,8 +24,6 @@ const getOrderByParam = (sortParam?: string) => {
 
 const getSpecificAlgoliaIndex = (sortParam?: string): SearchIndex => {
   switch (sortParam) {
-    case 'first_name':
-      return teachers_index_first_name
     case 'salary':
       return teachers_index_salary
     default:
@@ -58,7 +56,8 @@ export const getTeachers = async ({
           address: teacher.address,
           teacher_id: teacher.teacherId,
           email: teacher.email,
-          salary: teacher.salary
+          salary: teacher.salary,
+          membership_status: teacher.membershipStatus
         })
         .from(teacher)
         .orderBy(orderByParam)
@@ -72,6 +71,6 @@ export const getTeachersCount = async (): Promise<{ count: number }[]> => {
   const teachersCount = await drizzle_orm
     .select({ count: count(teacher.teacherId) })
     .from(teacher)
-  console.log(teachersCount)
+  console.log('teachers_count is ', teachersCount)
   return teachersCount
 }

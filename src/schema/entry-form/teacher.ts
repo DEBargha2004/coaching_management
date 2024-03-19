@@ -41,5 +41,8 @@ export const teacherEntrySchema = z.object({
     required_error: 'Primary language is required'
   }),
   salary: z.number({ required_error: 'Salary is required' }),
-  dob: z.date({ required_error: 'Date of birth is required' })
+  dob: z.date({ required_error: 'Date of birth is required' }),
+  membership_status: z.string({
+    required_error: 'Membership status is required'
+  })
 })

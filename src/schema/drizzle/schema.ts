@@ -9,7 +9,8 @@ import {
   mysqlEnum,
   int,
   unique,
-  double
+  double,
+  boolean
 } from 'drizzle-orm/mysql-core'
 import { sql } from 'drizzle-orm'
 
@@ -372,6 +373,7 @@ export const teacher = mysqlTable(
   'Teacher',
   {
     teacherId: varchar('teacher_id', { length: 191 }).notNull(),
+    imageId: varchar('image_id', { length: 191 }),
     firstName: varchar('first_name', { length: 191 }).notNull(),
     lastName: varchar('last_name', { length: 191 }).notNull(),
     dob: datetime('dob', { mode: 'string', fsp: 3 }).notNull(),
@@ -383,7 +385,8 @@ export const teacher = mysqlTable(
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
       .default(sql`CURRENT_TIMESTAMP(3)`)
       .notNull(),
-    salary: double('salary').notNull()
+    salary: double('salary').notNull(),
+    membershipStatus: varchar('membership_status', { length: 100 }).notNull()
   },
   table => {
     return {
