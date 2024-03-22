@@ -33,7 +33,7 @@ export default function RootLayout ({
           >
             {userId ? (
               <>
-                <section className='min-h-screen'>
+                <section className='h-screen'>
                   <main className='h-[10%]'>
                     <Navbar className='h-full p-4' />
                   </main>

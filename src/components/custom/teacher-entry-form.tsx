@@ -46,7 +46,7 @@ export default function TeacherEntryForm ({
 
   useEffect(() => {
     const updatedDate = new Date(`${dateObject.month}/01/${dateObject.year}`)
-    form.setValue('dob', updatedDate)
+    form.setValue('dob', format(updatedDate, 'yyyy-MM-dd'))
   }, [dateObject])
 
   return (
@@ -245,14 +245,18 @@ export default function TeacherEntryForm ({
                     </div>
                     <Calendar
                       mode='single'
-                      selected={field?.value}
-                      onSelect={field.onChange}
+                      selected={new Date(field?.value)}
+                      onSelect={date =>
+                        field.onChange(
+                          format(date || field?.value, 'yyyy-MM-dd')
+                        )
+                      }
                       disabled={date =>
                         date > new Date() || date < new Date('1900-01-01')
                       }
                       month={
                         new Date(field?.value).getTime()
-                          ? field?.value
+                          ? new Date(field?.value)
                           : new Date()
                       }
                       onMonthChange={date => {
@@ -361,7 +365,7 @@ export default function TeacherEntryForm ({
           />
           <FormField
             control={form.control}
-            name='membership_status'
+            name='membershipStatus'
             render={({ field }) => (
               <FormItem>
                 <FormLabel className='flex justify-start items-center'>
