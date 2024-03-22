@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { produce } from 'immer'
 
 export type TeacherTypeBoard = {
   first_name: string
@@ -8,6 +9,7 @@ export type TeacherTypeBoard = {
   teacher_id: string
   email?: string | null
   salary: number | null
+  membership_status: string
 }
 
 type State = {
@@ -17,7 +19,7 @@ type State = {
 
 type Actions = {
   setTeachersBoard: (data: TeacherTypeBoard[]) => void
-  addTeachersBoard: (fn: (data: State) => void) => void
+  alterTeachersBoard: (fn: (data: State) => void) => void
   setTeachersCount: (count: number) => void
 }
 
@@ -25,10 +27,11 @@ export const useTeachersStore = create<State & Actions>(set => ({
   teachers_board: [],
   teachers_count: 0,
   setTeachersBoard: (data: TeacherTypeBoard[]) => set({ teachers_board: data }),
-  addTeachersBoard: (fn: (data: State) => void) =>
-    set(state => {
-      fn(state)
-      return state
-    }),
+  alterTeachersBoard: (fn: (data: State) => void) =>
+    set(
+      produce((state: State) => {
+        fn(state)
+      })
+    ),
   setTeachersCount: (count: number) => set({ teachers_count: count })
 }))
