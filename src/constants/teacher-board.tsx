@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge'
 import { teacher_membership_statuses } from './membership-status'
 
 export type BoardItemType = {
@@ -43,7 +44,19 @@ export const teacherBoardList: BoardItemType[] = [
   {
     name: 'Membership Status',
     value: 'membership_status',
-    process: value =>
-      teacher_membership_statuses.find(status => status.value === value)?.name
+    process: value => {
+      const variant =
+        value === 'active'
+          ? 'default'
+          : value === 'inactive'
+          ? 'outline'
+          : 'secondary'
+      return (
+        <Badge variant={variant}>
+          {teacher_membership_statuses.find(status => status.value === value)
+            ?.name || value}
+        </Badge>
+      )
+    }
   }
 ]
