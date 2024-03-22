@@ -4,12 +4,13 @@ import { teacherEntrySchema } from '@/schema/entry-form/teacher'
 import * as z from 'zod'
 import { v4 } from 'uuid'
 import { drizzle_orm } from '@/lib/drizzle'
-import { teacher } from '@/schema/drizzle/schema'
+import { teacher, teacherStayDuration } from '@/schema/drizzle/schema'
 import { ServerMessagePOSTType } from '@/types/server-message'
 import { TeacherTypeBoard } from '@/store/teachers-store'
 import { teachers_index } from '@/lib/algolia'
 import { format } from 'date-fns'
 import { eq, or } from 'drizzle-orm'
+import changeTeacherStay from './change-teacher-stay'
 
 export async function addTeacher (
   data: z.infer<typeof teacherEntrySchema>
@@ -76,7 +77,13 @@ export async function addTeacher (
       primaryLanguage: data.primaryLanguage,
       teacherId: teacher_id,
       salary: data.salary,
-      membershipStatus: data.membership_status
+      membershipStatus: data.membershipStatus
+    })
+
+    await changeTeacherStay({
+      teacher_id,
+      membership_status: data.membershipStatus,
+      date: format(new Date(), 'yyyy-MM-dd')
     })
 
     //adding to algolia
@@ -90,9 +97,14 @@ export async function addTeacher (
         email: data.email,
         address: data.address,
         salary: data.salary,
-        membership_status: data.membership_status
+        membership_status: data.membershipStatus
       })
       .wait()
+    await drizzle_orm.insert(teacherStayDuration).values({
+      teacherId: teacher_id,
+      stayId: `stay_${v4()}`,
+      joiningDate: format(new Date(), 'yyyy-MM-dd')
+    })
 
     return {
       status: 'success',
@@ -105,11 +117,12 @@ export async function addTeacher (
           last_name: data.lastName,
           phone_number: data.phoneNumber,
           email: data.email,
-          address: data.address,
-          salary: data.salary
+          address: data.address || '',
+          salary: data.salary,
+          membership_status: data.membershipStatus
         }
       ]
-    } as ServerMessagePOSTType<TeacherTypeBoard[]>
+    }
   } catch (error) {
     console.log(error)
 
