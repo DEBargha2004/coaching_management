@@ -209,19 +209,24 @@ export default function Page () {
   useEffect(() => {
     if (user?.id) {
       setLoading(prev => ({ ...prev, teachers: true }))
-      pageInfo.active_page &&
-        getTeachers({
-          search: throttledSearch,
-          sortParam: throttledSortParam,
-          offset: pageInfo?.active_page
-            ? (pageInfo?.active_page - 1) * teachersLimitPerBoard
-            : 0
-        }).then(data => {
-          setTeachersBoard(data)
-          setLoading(prev => ({ ...prev, teachers: false }))
-        })
+      const activePage = searchParams.get('p')
+      const activePage_num = activePage
+        ? isNumber(Number(activePage))
+          ? Number(activePage)
+          : 1
+        : 1
+      getTeachers({
+        search: throttledSearch,
+        sortParam: throttledSortParam,
+        offset: activePage_num
+          ? (activePage_num - 1) * teachersLimitPerBoard
+          : 0
+      }).then(data => {
+        setTeachersBoard(data)
+        setLoading(prev => ({ ...prev, teachers: false }))
+      })
     }
-  }, [user, throttledSearch, throttledSortParam, pageInfo])
+  }, [user, throttledSearch, throttledSortParam, searchParams])
 
   useEffect(() => {
     if (user?.id) {
@@ -235,11 +240,11 @@ export default function Page () {
     }
   }, [user])
 
-  useEffect(() => {
-    if (!searchParams.get('p')) {
-      redirect(`/t?p=1`)
-    }
-  }, [searchParams])
+  // useEffect(() => {
+  //   if (!searchParams.get('p')) {
+  //     redirect(`/t?p=1`)
+  //   }
+  // }, [searchParams])
 
   // console.log(teachers_board)
 
@@ -346,10 +351,12 @@ export default function Page () {
                                   View
                                 </ContextMenuItem>
                               </Link>
-                              <ContextMenuItem className='cursor-pointer'>
-                                <Pen className='mr-2 h-4 w-4' />
-                                Edit
-                              </ContextMenuItem>
+                              <Link href={`/t/${teacher.teacher_id}/edit`}>
+                                <ContextMenuItem className='cursor-pointer'>
+                                  <Pen className='mr-2 h-4 w-4' />
+                                  Edit
+                                </ContextMenuItem>
+                              </Link>
                               <DialogTrigger asChild>
                                 <ContextMenuItem className='cursor-pointer'>
                                   <Trash2 className='mr-2 h-4 w-4' />
