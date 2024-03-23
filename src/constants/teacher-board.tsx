@@ -60,3 +60,5 @@ export const teacherBoardList: BoardItemType[] = [
     }
   }
 ]
+
+export const teachersLimitPerBoard = 10

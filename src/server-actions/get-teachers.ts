@@ -1,5 +1,6 @@
 'use server'
 
+import { teachersLimitPerBoard } from '@/constants/teacher-board'
 import {
   teachers_index,
   teachers_index_first_name,
@@ -44,7 +45,7 @@ export const getTeachers = async ({
   const teachers = await (search
     ? getSpecificAlgoliaIndex(sortParam)
         .search<TeacherTypeBoard>(search, {
-          hitsPerPage: 10,
+          hitsPerPage: teachersLimitPerBoard,
           ...(offset ? { offset } : {})
         })
         .then(({ hits }) => hits)
@@ -61,7 +62,7 @@ export const getTeachers = async ({
         })
         .from(teacher)
         .orderBy(orderByParam)
-        .limit(10)
+        .limit(teachersLimitPerBoard)
         .offset(offset || 0))
 
   return teachers

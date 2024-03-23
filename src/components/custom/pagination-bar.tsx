@@ -40,6 +40,11 @@ export default function PaginationBar ({
     let pages: (number | 'ellipsis')[] = []
     let endCollectStart: number
     const nextPagesFromNow = getFrom(activePage - 1, pageItemLimit - 1)
+    activePage = activePage >= totalPages ? totalPages : activePage
+
+    if (totalPages <= pageItemLimit) {
+      return pagesCollection
+    }
 
     if (nextPagesFromNow.at(-1) === totalPages) {
       if (nextPagesFromNow.length < pageItemLimit - 1) {
@@ -55,7 +60,11 @@ export default function PaginationBar ({
         endCollectStart = activePage - 1
       }
     } else {
-      pages.push(...nextPagesFromNow.slice(0, -1), 'ellipsis', totalPages)
+      pages.push(
+        ...nextPagesFromNow.slice(0, activePage === minPage ? undefined : -1),
+        'ellipsis',
+        totalPages
+      )
       endCollectStart = activePage - 1
     }
 
@@ -64,9 +73,11 @@ export default function PaginationBar ({
     if (prevPagesFromNow.at(-1) === minPage) {
       pages = [minPage, ...pages]
     } else {
-      const prevsFormatted: Page[] =
-        pages[0] === 'ellipsis' ? [minPage] : [minPage, 'ellipsis']
-      pages = [...prevsFormatted, ...pages]
+      if (pages[0] !== minPage) {
+        const prevsFormatted: Page[] =
+          pages[0] === 'ellipsis' ? [minPage] : [minPage, 'ellipsis']
+        pages = [...prevsFormatted, ...pages]
+      }
     }
 
     return pages

@@ -38,7 +38,10 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { teacherBoardList } from '@/constants/teacher-board'
+import {
+  teacherBoardList,
+  teachersLimitPerBoard
+} from '@/constants/teacher-board'
 import { cn } from '@/lib/utils'
 import { getTeachers, getTeachersCount } from '@/server-actions/get-teachers'
 import { useTeachersStore } from '@/store/teachers-store'
@@ -67,21 +70,23 @@ import Link from 'next/link'
 import { teacher_membership_statuses } from '@/constants/membership-status'
 import changeTeacherInfo from '@/server-actions/change-teacher-info'
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious
-} from '@/components/ui/pagination'
-import { useParams } from 'next/navigation'
+  redirect,
+  useParams,
+  usePathname,
+  useSearchParams
+} from 'next/navigation'
 import PaginationBar from '@/components/custom/pagination-bar'
+import { isNumber } from 'lodash'
 
 export default function Page () {
   const [search, setSearch] = useState('')
   const [sortParam, setSortParam] = useState('')
   const throttledSearch = useThrottle(search, 500)
   const throttledSortParam = useThrottle(sortParam, 500)
-  const pathParams = useParams<{ p: string }>()
+  const searchParams = useSearchParams()
+  const [pageInfo, setPageInfo] = useState<{ active_page: number | null }>({
+    active_page: null
+  })
 
   const [dialogBoxState, setDialogBoxState] = useState({
     teacher_entry_form: false,
@@ -93,11 +98,14 @@ export default function Page () {
   })
   const { toast } = useToast()
 
-  const { setTeachersBoard, alterTeachersBoard, setTeachersCount } =
-    useTeachersStore()
-  const teachers_board = useTeachersStore(state => state.teachers_board)
+  const {
+    teachers_board,
+    teachers_count,
+    setTeachersBoard,
+    alterTeachersBoard,
+    setTeachersCount
+  } = useTeachersStore()
   const { user } = useUser()
-  const [pageInfo, setPageInfo] = useState({})
 
   const form = useForm<z.infer<typeof teacherEntrySchema>>({
     resolver: zodResolver(teacherEntrySchema)
@@ -201,24 +209,37 @@ export default function Page () {
   useEffect(() => {
     if (user?.id) {
       setLoading(prev => ({ ...prev, teachers: true }))
-      getTeachers({
-        search: throttledSearch,
-        sortParam: throttledSortParam,
-        offset: pathParams?.p ? parseInt(pathParams?.p) : 0
-      }).then(data => {
-        setTeachersBoard(data)
-        setLoading(prev => ({ ...prev, teachers: false }))
-      })
+      pageInfo.active_page &&
+        getTeachers({
+          search: throttledSearch,
+          sortParam: throttledSortParam,
+          offset: pageInfo?.active_page
+            ? (pageInfo?.active_page - 1) * teachersLimitPerBoard
+            : 0
+        }).then(data => {
+          setTeachersBoard(data)
+          setLoading(prev => ({ ...prev, teachers: false }))
+        })
     }
-  }, [user, throttledSearch, throttledSortParam, pathParams])
+  }, [user, throttledSearch, throttledSortParam, pageInfo])
 
   useEffect(() => {
     if (user?.id) {
       getTeachersCount().then(count =>
         setTeachersCount(count ? count[0]?.count : 0)
       )
+
+      const activePage = Number(searchParams.get('p'))
+      const activePage_num = isNumber(activePage) ? activePage : 1
+      setPageInfo(prev => ({ ...prev, active_page: activePage_num }))
     }
   }, [user])
+
+  useEffect(() => {
+    if (!searchParams.get('p')) {
+      redirect(`/t?p=1`)
+    }
+  }, [searchParams])
 
   // console.log(teachers_board)
 
@@ -290,7 +311,12 @@ export default function Page () {
                 ))
               : teachers_board?.map((teacher, teacher_idx) => (
                   <TableRow key={teacher.teacher_id}>
-                    <TableCell>{teacher_idx + 1}</TableCell>
+                    <TableCell>
+                      {(Number(pageInfo.active_page) - 1) *
+                        teachersLimitPerBoard +
+                        teacher_idx +
+                        1}
+                    </TableCell>
                     {teacherBoardList.map((item, index) => (
                       <TableCell key={index} className='p-0 cursor-pointer'>
                         <Dialog
@@ -400,10 +426,10 @@ export default function Page () {
           </TableBody>
         </Table>
         <PaginationBar
-          activePage={3}
-          baseLink='/t?q=%s'
+          activePage={Number(pageInfo.active_page) || 1}
+          baseLink='/t?p=%s'
           replaceString='%s'
-          totalPages={12}
+          totalPages={Math.ceil(teachers_count / teachersLimitPerBoard)}
           minPage={1}
           pageItemLimit={5}
           className='mt-4'

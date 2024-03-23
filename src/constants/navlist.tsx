@@ -31,7 +31,7 @@ export const navlist: NavItemType[] = [
   },
   {
     name: 'Teachers',
-    href: '/t',
+    href: '/t?p=1',
     type: 'link',
     icon: className => <GraduationCap className={className} />
   },
