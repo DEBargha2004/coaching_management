@@ -18,7 +18,6 @@ export default async function changeTeacherStay ({
   date: string
 }): Promise<ServerMessagePOSTType<'active' | 'inactive' | null>> {
   try {
-    console.log('changeTeacherStay', { teacher_id, membership_status, date })
     const createdAt = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
 
     if (membership_status === 'active') {

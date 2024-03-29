@@ -92,8 +92,6 @@ export default async function Page ({
     teacherImageUrl ||
     (fullTeacherInfo ? (fullTeacherInfo.sex === 'male' ? man : woman) : user)
 
-  // console.log(new Date(fullTeacherInfo.dob))
-
   const formatTime = (time: string) => {
     return format(parse(time, 'HH:mm:ss', new Date()), 'hh:mm a')
   }

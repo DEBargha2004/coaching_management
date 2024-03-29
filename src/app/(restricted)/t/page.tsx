@@ -77,6 +77,7 @@ import {
 } from 'next/navigation'
 import PaginationBar from '@/components/custom/pagination-bar'
 import { isNumber } from 'lodash'
+import { format } from 'date-fns'
 
 export default function Page () {
   const [search, setSearch] = useState('')
@@ -240,14 +241,6 @@ export default function Page () {
     }
   }, [user])
 
-  // useEffect(() => {
-  //   if (!searchParams.get('p')) {
-  //     redirect(`/t?p=1`)
-  //   }
-  // }, [searchParams])
-
-  // console.log(teachers_board)
-
   return (
     <main className='h-full w-full'>
       <div className='flex justify-between items-center gap-10 h-[10%]'>
@@ -317,7 +310,7 @@ export default function Page () {
               : teachers_board?.map((teacher, teacher_idx) => (
                   <TableRow key={teacher.teacher_id}>
                     <TableCell>
-                      {(Number(pageInfo.active_page) - 1) *
+                      {((Number(pageInfo.active_page) || 1) - 1) *
                         teachersLimitPerBoard +
                         teacher_idx +
                         1}
@@ -436,7 +429,7 @@ export default function Page () {
           activePage={Number(pageInfo.active_page) || 1}
           baseLink='/t?p=%s'
           replaceString='%s'
-          totalPages={Math.ceil(teachers_count / teachersLimitPerBoard)}
+          totalPages={Math.ceil(teachers_count / teachersLimitPerBoard) | 1}
           minPage={1}
           pageItemLimit={5}
           className='mt-4'

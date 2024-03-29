@@ -8,7 +8,7 @@ import {
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
 import { usePathname } from 'next/navigation'
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 export default function Layout ({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -26,7 +26,7 @@ export default function Layout ({ children }: { children: React.ReactNode }) {
           <BreadcrumbList>
             {pathnameArray.map((path, path_idx) => {
               return (
-                <>
+                <React.Fragment key={path_idx}>
                   {path === 'separator' ? (
                     <BreadcrumbSeparator />
                   ) : (
@@ -47,7 +47,7 @@ export default function Layout ({ children }: { children: React.ReactNode }) {
                       </BreadcrumbLink>
                     </BreadcrumbItem>
                   )}
-                </>
+                </React.Fragment>
               )
             })}
           </BreadcrumbList>

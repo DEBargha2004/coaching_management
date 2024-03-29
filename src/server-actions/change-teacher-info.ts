@@ -18,9 +18,6 @@ export default async function changeTeacherInfo ({
   data: Partial<z.infer<typeof teacherEntrySchema>>
 }): Promise<ServerMessagePOSTType<typeof data>> {
   try {
-    const { success } = teacherEntrySchema.safeParse(data)
-    console.log('success is', success)
-
     if (data.dob) {
       data.dob = data.dob ? format(new Date(data.dob), 'yyyy-MM-dd') : ''
     }
