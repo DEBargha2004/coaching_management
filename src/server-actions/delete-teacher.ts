@@ -2,14 +2,18 @@
 
 import { teachers_index } from '@/lib/algolia'
 import { drizzle_orm } from '@/lib/drizzle'
-import { teacher } from '@/schema/drizzle/schema'
+import { teacher, teacherStayDuration } from '@/schema/drizzle/schema'
 import { ServerMessagePOSTType } from '@/types/server-message'
-import { eq } from 'drizzle-orm'
+import { format } from 'date-fns'
+import { and, eq, isNull } from 'drizzle-orm'
 
 export default async function removeTeacher (
   id: string
 ): Promise<ServerMessagePOSTType> {
   try {
+    await drizzle_orm
+      .delete(teacherStayDuration)
+      .where(eq(teacherStayDuration.teacherId, id))
     const res = await drizzle_orm
       .delete(teacher)
       .where(eq(teacher.teacherId, id))
@@ -20,6 +24,8 @@ export default async function removeTeacher (
       description: 'Teacher data has been deleted successfully'
     }
   } catch (error) {
+    console.log(error)
+
     return {
       status: 'error',
       heading: 'Internal Server Error',
