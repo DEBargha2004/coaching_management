@@ -4,7 +4,7 @@ import { drizzle_orm } from '@/lib/drizzle'
 import { teacherStayDuration } from '@/schema/drizzle/schema'
 import { ServerMessagePOSTType } from '@/types/server-message'
 import { format } from 'date-fns'
-import { and, eq } from 'drizzle-orm'
+import { and, eq, isNull } from 'drizzle-orm'
 import { v4 } from 'uuid'
 
 export default async function changeTeacherStay ({
@@ -18,6 +18,9 @@ export default async function changeTeacherStay ({
   date: string
 }): Promise<ServerMessagePOSTType<'active' | 'inactive' | null>> {
   try {
+    console.log('changeTeacherStay', { teacher_id, membership_status, date })
+    const createdAt = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
+
     if (membership_status === 'active') {
       const teacher_stays = await drizzle_orm
         .select({
@@ -28,7 +31,7 @@ export default async function changeTeacherStay ({
         .where(
           and(
             eq(teacherStayDuration.teacherId, teacher_id),
-            eq(teacherStayDuration.leavingDate, '')
+            isNull(teacherStayDuration.leavingDate)
           )
         )
       if (teacher_stays.length) {
@@ -43,7 +46,8 @@ export default async function changeTeacherStay ({
         await drizzle_orm.insert(teacherStayDuration).values({
           stayId: `stay_${v4()}`,
           teacherId: teacher_id,
-          joiningDate: format(new Date(date), 'yyyy-MM-dd')
+          joiningDate: format(new Date(date), 'yyyy-MM-dd'),
+          createdAt
         })
 
         return {
@@ -63,9 +67,10 @@ export default async function changeTeacherStay ({
         .where(
           and(
             eq(teacherStayDuration.teacherId, teacher_id),
-            eq(teacherStayDuration.leavingDate, '')
+            isNull(teacherStayDuration.leavingDate)
           )
         )
+      console.log('teacher_stays', teacher_stays)
       if (teacher_stays.length) {
         await drizzle_orm
           .update(teacherStayDuration)
@@ -73,7 +78,7 @@ export default async function changeTeacherStay ({
           .where(
             and(
               eq(teacherStayDuration.teacherId, teacher_id),
-              eq(teacherStayDuration.leavingDate, '')
+              isNull(teacherStayDuration.leavingDate)
             )
           )
         return {
@@ -90,6 +95,7 @@ export default async function changeTeacherStay ({
           .from(teacherStayDuration)
           .where(eq(teacherStayDuration.teacherId, teacher_id))
         if (existing_stay.length) {
+          console.log('existing_stay if', existing_stay)
           return {
             status: 'error',
             heading: 'Membership status already inactive',
@@ -98,6 +104,7 @@ export default async function changeTeacherStay ({
             result: 'inactive'
           }
         } else {
+          console.log('existing_stay else', existing_stay)
           return {
             status: 'success',
             heading: 'Membership status set',
