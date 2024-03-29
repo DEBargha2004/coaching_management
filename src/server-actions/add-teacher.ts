@@ -77,7 +77,8 @@ export async function addTeacher (
       primaryLanguage: data.primaryLanguage,
       teacherId: teacher_id,
       salary: data.salary,
-      membershipStatus: data.membershipStatus
+      membershipStatus: data.membershipStatus,
+      createdAt: format(new Date(), 'yyyy-MM-dd HH:mm:ss')
     })
 
     await changeTeacherStay({
@@ -100,11 +101,6 @@ export async function addTeacher (
         membership_status: data.membershipStatus
       })
       .wait()
-    await drizzle_orm.insert(teacherStayDuration).values({
-      teacherId: teacher_id,
-      stayId: `stay_${v4()}`,
-      joiningDate: format(new Date(), 'yyyy-MM-dd')
-    })
 
     return {
       status: 'success',
