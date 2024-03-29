@@ -10,7 +10,8 @@ import {
   int,
   unique,
   double,
-  boolean
+  boolean,
+  time
 } from 'drizzle-orm/mysql-core'
 import { sql } from 'drizzle-orm'
 
@@ -131,9 +132,21 @@ export const batchTimings = mysqlTable(
         onDelete: 'restrict',
         onUpdate: 'cascade'
       }),
-    startTime: datetime('start_time', { mode: 'string', fsp: 3 }).notNull(),
-    endTime: datetime('end_time', { mode: 'string', fsp: 3 }).notNull(),
-    day: varchar('day', { length: 191 }).notNull(),
+    teacherId: varchar('teacher_id', { length: 191 })
+      .notNull()
+      .references(() => teacher.teacherId, {
+        onDelete: 'restrict',
+        onUpdate: 'cascade'
+      }),
+    subjectId: varchar('subject_id', { length: 191 })
+      .notNull()
+      .references(() => subject.subjectId, {
+        onDelete: 'restrict',
+        onUpdate: 'cascade'
+      }),
+    startTime: time('start_time').notNull(),
+    endTime: time('end_time').notNull(),
+    dayIndex: int('day_index').notNull(),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
       .default(sql`CURRENT_TIMESTAMP(3)`)
       .notNull()
