@@ -14,9 +14,10 @@ type Teacher = {
   teacher_id: string
   first_name: string
   last_name: string
+  sex: string
 }
 
-type Batch = {
+export type Batch = {
   batch_id: string
   batch_name: string | null
   created_at: string | null
@@ -38,7 +39,8 @@ export default async function getBatchesOfTeacher (
           JSON_OBJECT(
             'teacher_id', ${teacher.teacherId},
             'first_name', ${teacher.firstName},
-            'last_name', ${teacher.lastName}
+            'last_name', ${teacher.lastName},
+            'sex', ${teacher.sex}
           )
         ) 
         from 

@@ -39,6 +39,7 @@ import { auth } from '@clerk/nextjs'
 import { eq } from 'drizzle-orm'
 import getTeacherSchedules from '@/server-actions/get-teacher-schedules'
 import getBatchesOfTeacher from '@/server-actions/get-batches-of-teacher'
+import BatchCard from '@/components/custom/batch-card'
 
 export default async function Page ({
   params
@@ -299,7 +300,16 @@ export default async function Page ({
           </Table>
         </div>
       </ProfilePageSectionWrapper>
-      <ProfilePageSectionWrapper classname='w-full mt-10 px-5 pb-10'></ProfilePageSectionWrapper>
+      <ProfilePageSectionWrapper classname='w-full mt-10 px-5 pb-10'>
+        <div className='w-full'>
+          <h1 className='text-2xl mb-6'>Batches</h1>
+          <div className='grid grid-cols-3 gap-3'>
+            {batches.result?.map(batch => (
+              <BatchCard key={batch.batch_id} batch={batch} />
+            ))}
+          </div>
+        </div>
+      </ProfilePageSectionWrapper>
     </section>
   )
 }
