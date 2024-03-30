@@ -42,7 +42,7 @@ export default function Navbar ({ className }: { className?: string }) {
                   <Link href={item.href}>
                     <NavItem
                       className={
-                        pathName === item.href
+                        pathName.split('?')[0] === item.href.split('?')[0]
                           ? 'bg-primary hover:bg-primary'
                           : ''
                       }
