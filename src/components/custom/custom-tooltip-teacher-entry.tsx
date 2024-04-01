@@ -7,7 +7,7 @@ import {
 } from '../ui/tooltip'
 import { cn } from '@/lib/utils'
 
-export const CustomTooltipTeacherEntry = ({
+export const CustomTooltipEntryForm = ({
   delay,
   children,
   className

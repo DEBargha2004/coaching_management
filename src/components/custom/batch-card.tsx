@@ -37,11 +37,13 @@ export default function BatchCard ({ batch }: { batch: Batch }) {
         <p className='text-slate-400 text-sm my-2'>
           {batch.students_count} students
         </p>
-        <p className='text-slate-400 text-sm'>
+        <p className='text-muted-foreground text-sm'>
           Created at{' '}
-          {batch.created_at
-            ? format(new Date(batch.created_at), 'dd MMM yyyy')
-            : '—'}
+          <span>
+            {batch.created_at
+              ? format(new Date(batch.created_at), 'dd MMM yyyy')
+              : '—'}
+          </span>
         </p>
         <div className='flex mt-4 relative'>
           <AnimatedTooltip
