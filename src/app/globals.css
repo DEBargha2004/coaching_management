@@ -68,3 +68,15 @@ input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.parental .cancel {
+  display: none;
+}
+
+.parental:hover .cancel {
+  display: block;
+}
