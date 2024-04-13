@@ -23,13 +23,6 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select'
-import {
   Table,
   TableBody,
   TableCell,
@@ -37,10 +30,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import {
-  teacherBoardList,
-  teachersLimitPerBoard
-} from '@/constants/teacher-board'
+import { teachersLimitPerBoard } from '@/constants/teacher-board'
 import { cn } from '@/lib/utils'
 import { useUser } from '@clerk/nextjs'
 import { BadgeCheck, Eye, Loader2, Pen, Trash2, User2 } from 'lucide-react'
@@ -48,7 +38,6 @@ import { useEffect, useState } from 'react'
 import { useThrottle } from '@uidotdev/usehooks'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { teacherEntrySchema } from '@/schema/entry-form/teacher'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useToast } from '@/components/ui/use-toast'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -61,10 +50,14 @@ import { useStudentStore } from '@/store/students-store'
 import { getStudents, getStudentsCount } from '@/server-actions/get-students'
 import { studentEntrySchema } from '@/schema/entry-form/student'
 import StudentEntryForm from '@/components/custom/student-entry-form'
+import { studentBoardList, studentsLimitBoard } from '@/constants/student-board'
+import { addStudent } from '@/server-actions/add-student'
+import deleteStudent from '@/server-actions/delete-student'
+import changeStudentStay from '@/server-actions/change-student-stay'
+import changeStudentInfo from '@/server-actions/change-student-info'
 
 export default function Page () {
   const [search, setSearch] = useState('')
-  const [sortParam, setSortParam] = useState('')
   const throttledSearch = useThrottle(search, 500)
   const searchParams = useSearchParams()
   const [pageInfo, setPageInfo] = useState<{ active_page: number | null }>({
@@ -72,8 +65,8 @@ export default function Page () {
   })
 
   const [dialogBoxState, setDialogBoxState] = useState({
-    teacher_entry_form: false,
-    delete_teacher: false
+    student_entry_form: false,
+    delete_student: false
   })
   const [loading, setLoading] = useState<{
     get_students: boolean
@@ -108,93 +101,93 @@ export default function Page () {
     }
   })
 
-  // const handleFormSubmit = async (data: z.infer<typeof teacherEntrySchema>) => {
-  //   const serverMessage_addTeacher = await addTeacher(data)
-  //   setDialogBoxState(prev => ({ ...prev, teacher_entry_form: false }))
-  //   alterTeachersBoard(prev => {
-  //     prev.teachers_board.unshift(...(serverMessage_addTeacher.result || []))
-  //   })
-  //   toast({
-  //     title: serverMessage_addTeacher.heading,
-  //     description: serverMessage_addTeacher.description,
-  //     variant:
-  //       serverMessage_addTeacher.status === 'success'
-  //         ? 'default'
-  //         : 'destructive'
-  //   })
-  //   form.reset()
-  // }
+  const handleFormSubmit = async (data: z.infer<typeof studentEntrySchema>) => {
+    const serverMessage_addStudent = await addStudent(data)
+    setDialogBoxState(prev => ({ ...prev, student_entry_form: false }))
+    alterStudentsBoard(prev => {
+      prev.students_board.unshift(...(serverMessage_addStudent.result || []))
+    })
+    toast({
+      title: serverMessage_addStudent.heading,
+      description: serverMessage_addStudent.description,
+      variant:
+        serverMessage_addStudent.status === 'success'
+          ? 'default'
+          : 'destructive'
+    })
+    form.reset()
+  }
 
-  // const handleDeleteTeacher = async (id: string) => {
-  //   setLoading(prev => ({ ...prev, delete_teacher: true }))
-  //   const serverMessage = await removeTeacher(id)
-  //   setLoading(prev => ({ ...prev, delete_teacher: false }))
-  //   toast({
-  //     title: serverMessage.heading,
-  //     description: serverMessage.description,
-  //     variant: serverMessage.status === 'success' ? 'default' : 'destructive'
-  //   })
-  //   if (serverMessage.status === 'success') {
-  //     alterTeachersBoard(teachers => {
-  //       teachers.teachers_board = teachers.teachers_board.filter(
-  //         teacher => teacher.teacher_id !== id
-  //       )
-  //     })
-  //   }
-  //   setDialogBoxState(prev => ({ ...prev, delete_teacher: false }))
-  // }
+  const handleDeleteStudent = async (id: string) => {
+    setLoading(prev => ({ ...prev, delete_student: true }))
+    const serverMessage = await deleteStudent(id)
+    setLoading(prev => ({ ...prev, delete_student: false }))
+    toast({
+      title: serverMessage.heading,
+      description: serverMessage.description,
+      variant: serverMessage.status === 'success' ? 'default' : 'destructive'
+    })
+    if (serverMessage.status === 'success') {
+      alterStudentsBoard(students => {
+        students.students_board = students.students_board.filter(
+          student => student.student_id !== id
+        )
+      })
+    }
+    setDialogBoxState(prev => ({ ...prev, delete_student: false }))
+  }
 
-  // const handleMembershipStatus = async ({
-  //   teacher_id,
-  //   status
-  // }: {
-  //   teacher_id: string
-  //   status: string
-  // }) => {
-  //   const prev_status = teachers_board.find(
-  //     t => t.teacher_id === teacher_id
-  //   )?.membership_status
+  const handleMembershipStatus = async ({
+    student_id,
+    status
+  }: {
+    student_id: string
+    status: string
+  }) => {
+    const prev_status = students_board.find(
+      s => s.student_id === student_id
+    )?.membership_status
 
-  //   if (prev_status === status) {
-  //     return toast({
-  //       title: 'No change',
-  //       description: `The teacher's membership status is already ${status}.`,
-  //       variant: 'default'
-  //     })
-  //   }
+    if (prev_status === status) {
+      return toast({
+        title: 'No change',
+        description: `The teacher's membership status is already ${status}.`,
+        variant: 'default'
+      })
+    }
 
-  //   if (prev_status) {
-  //     alterTeachersBoard(prev => {
-  //       prev.teachers_board.map(teacher => {
-  //         if (teacher.teacher_id === teacher_id) {
-  //           teacher.membership_status = 'Loading'
-  //         }
-  //       })
-  //     })
+    if (prev_status) {
+      alterStudentsBoard(prev => {
+        prev.students_board.map(student => {
+          if (student.student_id === student_id) {
+            student.membership_status = 'Loading'
+          }
+        })
+      })
 
-  //     const res = await changeTeacherInfo({
-  //       teacher_id,
-  //       data: { membershipStatus: status }
-  //     })
+      const res = await changeStudentInfo({
+        student_id,
+        data: { membershipStatus: status }
+      })
 
-  //     alterTeachersBoard(prev => {
-  //       prev.teachers_board.map(teacher => {
-  //         if (teacher.teacher_id === teacher_id) {
-  //           teacher.membership_status =
-  //             res.status === 'success'
-  //               ? res?.result?.membershipStatus || prev_status
-  //               : prev_status
-  //         }
-  //       })
-  //     })
+      alterStudentsBoard(prev => {
+        prev.students_board.map(student => {
+          if (student.student_id === student_id) {
+            student.membership_status =
+              res.status === 'success'
+                ? res?.result?.membershipStatus || prev_status
+                : prev_status
+          }
+        })
+      })
 
-  //     toast({
-  //       title: res.heading,
-  //       description: res.description,
-  //       variant: res.status === 'success' ? 'default' : 'destructive'
-  //     })
-  //   }
-  // }
+      toast({
+        title: res.heading,
+        description: res.description,
+        variant: res.status === 'success' ? 'default' : 'destructive'
+      })
+    }
+  }
 
   useEffect(() => {
     if (user?.id) {
@@ -242,10 +235,10 @@ export default function Page () {
         </div>
         <Dialog
           onOpenChange={e => {
-            setDialogBoxState(prev => ({ ...prev, teacher_entry_form: e }))
+            setDialogBoxState(prev => ({ ...prev, student_entry_form: e }))
             form.reset()
           }}
-          open={dialogBoxState.teacher_entry_form}
+          open={dialogBoxState.student_entry_form}
         >
           <DialogTrigger asChild>
             <Button>
@@ -255,10 +248,7 @@ export default function Page () {
           </DialogTrigger>
           <DialogContent className=''>
             <DialogHeader>Student Entry Form</DialogHeader>
-            <StudentEntryForm
-              form={form}
-              onSubmit={data => console.log(data)}
-            />
+            <StudentEntryForm form={form} onSubmit={handleFormSubmit} />
           </DialogContent>
         </Dialog>
       </div>
@@ -267,7 +257,7 @@ export default function Page () {
           <TableHeader>
             <TableRow>
               <TableHead>sl no.</TableHead>
-              {teacherBoardList.map((item, index) => (
+              {studentBoardList.map((item, index) => (
                 <TableHead key={index}>{item.name}</TableHead>
               ))}
             </TableRow>
@@ -279,7 +269,7 @@ export default function Page () {
                     <TableCell>
                       <Skeleton className='h-6 w-6' />
                     </TableCell>
-                    {teacherBoardList.map((item, index) => (
+                    {studentBoardList.map((item, index) => (
                       <TableCell key={index}>
                         <Skeleton className='h-6 w-auto' />
                       </TableCell>
@@ -294,16 +284,16 @@ export default function Page () {
                         student_idx +
                         1}
                     </TableCell>
-                    {teacherBoardList.map((item, index) => (
+                    {studentBoardList.map((item, index) => (
                       <TableCell key={index} className='p-0 cursor-pointer'>
                         <Dialog
                           onOpenChange={e => {
                             setDialogBoxState(prev => ({
                               ...prev,
-                              delete_teacher: e
+                              delete_student: e
                             }))
                           }}
-                          open={dialogBoxState.delete_teacher}
+                          open={dialogBoxState.delete_student}
                         >
                           <ContextMenu>
                             <ContextMenuTrigger>
@@ -350,12 +340,12 @@ export default function Page () {
                                         key={status.value}
                                         className='cursor-pointer'
                                         value={status.value}
-                                        // onClick={() => {
-                                        //   handleMembershipStatus({
-                                        //     teacher_id: student.student_id,
-                                        //     status: status.value
-                                        //   })
-                                        // }}
+                                        onClick={() => {
+                                          handleMembershipStatus({
+                                            student_id: student.student_id,
+                                            status: status.value
+                                          })
+                                        }}
                                       >
                                         {status.name}
                                       </ContextMenuRadioItem>
@@ -377,7 +367,7 @@ export default function Page () {
                                 onClick={() => {
                                   setDialogBoxState(prev => ({
                                     ...prev,
-                                    delete_teacher: false
+                                    delete_student: false
                                   }))
                                 }}
                                 variant={'secondary'}
@@ -386,9 +376,9 @@ export default function Page () {
                               </Button>
                               <Button
                                 variant={'destructive'}
-                                // onClick={() =>
-                                //   handleDeleteTeacher(student.student_id)
-                                // }
+                                onClick={() =>
+                                  handleDeleteStudent(student.student_id)
+                                }
                               >
                                 {loading.delete_student ? (
                                   <Loader2 className='mr-2 h-4 w-4 animate-spin' />
@@ -406,9 +396,9 @@ export default function Page () {
         </Table>
         <PaginationBar
           activePage={Number(pageInfo.active_page) || 1}
-          baseLink='/t?p=%s'
+          baseLink='/s?p=%s'
           replaceString='%s'
-          totalPages={Math.ceil(students_count / teachersLimitPerBoard) | 1}
+          totalPages={Math.ceil(students_count / studentsLimitBoard) | 1}
           minPage={1}
           pageItemLimit={5}
           className='mt-4'

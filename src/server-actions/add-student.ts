@@ -1,22 +1,22 @@
 'use server'
 
-import { teacherEntrySchema } from '@/schema/entry-form/teacher'
 import * as z from 'zod'
 import { v4 } from 'uuid'
 import { drizzle_orm } from '@/lib/drizzle'
-import { teacher, teachersQualification } from '@/schema/drizzle/schema'
+import { parent, student } from '@/schema/drizzle/schema'
 import { ServerMessagePOSTType } from '@/types/server-message'
-import { TeacherTypeBoard } from '@/store/teachers-store'
-import { teachers_index } from '@/lib/algolia'
+import { students_index, teachers_index } from '@/lib/algolia'
 import { format } from 'date-fns'
 import { eq, or } from 'drizzle-orm'
-import changeTeacherStay from './change-teacher-stay'
+import { StudentTypeBoard } from '@/store/students-store'
+import { studentEntrySchema } from '@/schema/entry-form/student'
+import changeStudentStay from './change-student-stay'
 
-export async function addTeacher (
-  data: z.infer<typeof teacherEntrySchema>
-): Promise<ServerMessagePOSTType<TeacherTypeBoard[]>> {
+export async function addStudent (
+  data: z.infer<typeof studentEntrySchema>
+): Promise<ServerMessagePOSTType<StudentTypeBoard[]>> {
   try {
-    const { success } = teacherEntrySchema.safeParse(data)
+    const { success } = studentEntrySchema.safeParse(data)
     if (!success) {
       return {
         status: 'error',
@@ -24,23 +24,23 @@ export async function addTeacher (
         description: 'Please check your data and try again'
       }
     }
-    const existing_Teacher = await drizzle_orm
+    const existing_student = await drizzle_orm
       .select({
-        teacher_id: teacher.teacherId,
-        email: teacher.email,
-        phoneNumber: teacher.phoneNumber
+        student_id: student.studentId,
+        email: student.email,
+        phone_number: student.phoneNumber
       })
-      .from(teacher)
+      .from(student)
       .where(
         or(
-          eq(teacher.email, data.email || ''),
-          eq(teacher.phoneNumber, data.phoneNumber)
+          eq(student.email, data.email || ''),
+          eq(student.phoneNumber, data.phoneNumber)
         )
       )
-    if (existing_Teacher.length) {
+    if (existing_student.length) {
       //check if email or phone number already exists
       //check if email
-      const existing_email = existing_Teacher.find(
+      const existing_email = existing_student.find(
         info => info.email === data.email
       )
       if (existing_email) {
@@ -51,8 +51,8 @@ export async function addTeacher (
         }
       }
       //check if phone number
-      const existing_phone = existing_Teacher.find(
-        info => info.phoneNumber === data.phoneNumber
+      const existing_phone = existing_student.find(
+        info => info.phone_number === data.phoneNumber
       )
       if (existing_phone) {
         return {
@@ -64,70 +64,67 @@ export async function addTeacher (
       }
     }
 
-    const teacher_id = `teach_${v4()}`
+    const student_id = `stud_${v4()}`
     //inserting into db
-    await drizzle_orm.insert(teacher).values({
+    await drizzle_orm.insert(student).values({
+      studentId: student_id,
       firstName: data.firstName,
       lastName: data.lastName,
       phoneNumber: data.phoneNumber,
       email: data.email,
+      aadharNumber: data.aadharNumber,
+      dob: data.dob,
       address: data.address,
-      dob: format(data.dob, 'yyyy-MM-dd'),
-      sex: data.sex,
-      primaryLanguage: data.primaryLanguage,
-      teacherId: teacher_id,
-      salary: data.salary,
       membershipStatus: data.membershipStatus,
+      primaryLanguage: data.primaryLanguage,
+      sex: data.sex,
       createdAt: format(new Date(), 'yyyy-MM-dd HH:mm:ss')
     })
 
-    await drizzle_orm.insert(teachersQualification).values(
-      data.qualifications.map(q => ({
-        teacherId: teacher_id,
-        courseType: q.courseType,
-        courseName: q.courseName,
-        ...(q.major ? { major: q.major } : {}),
-        collegeName: q.collegeName,
-        qualificationId: `qual_${v4()}`,
-        startDate: format(q.startDate, 'yyyy-MM-dd'),
-        endDate: format(q.endDate, 'yyyy-MM-dd')
+    await drizzle_orm.insert(parent).values(
+      data.parentalInfo.map(info => ({
+        parentId: `par_${v4()}`,
+        relation: info.relation,
+        studentId: student_id,
+        firstName: info.firstName,
+        lastName: info.lastName,
+        email: info.email,
+        phoneNumber: info.phoneNumber
       }))
     )
 
-    await changeTeacherStay({
-      teacher_id,
+    await changeStudentStay({
+      student_id,
       membership_status: data.membershipStatus,
       date: format(new Date(), 'yyyy-MM-dd')
     })
 
     //adding to algolia
-    await teachers_index
+    await students_index
       .saveObject({
-        objectID: teacher_id.replace('teach_', ''),
-        teacher_id,
+        objectID: student_id.replace('stud_', ''),
+        student_id,
         first_name: data.firstName,
         last_name: data.lastName,
         phone_number: data.phoneNumber,
         email: data.email,
         address: data.address,
-        salary: data.salary,
         membership_status: data.membershipStatus
       })
       .wait()
 
     return {
       status: 'success',
-      heading: 'Added Teacher',
-      description: 'Teacher added successfully',
+      heading: 'Added Student',
+      description: 'Student added successfully',
       result: [
         {
-          teacher_id,
+          student_id,
           first_name: data.firstName,
           last_name: data.lastName,
           phone_number: data.phoneNumber,
           email: data.email,
           address: data.address || '',
-          salary: data.salary,
           membership_status: data.membershipStatus
         }
       ]

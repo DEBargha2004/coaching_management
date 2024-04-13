@@ -3,7 +3,7 @@ type NameValue = {
   value: string
 }
 
-export const teacher_membership_statuses: NameValue[] = [
+export const membership_statuses: NameValue[] = [
   {
     name: 'Active',
     value: 'active'

@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button'
 import {
   ContextMenu,
-  ContextMenuCheckboxItem,
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuRadioGroup,
@@ -65,19 +64,13 @@ import TeacherEntryForm from '@/components/custom/teacher-entry-form'
 import { addTeacher } from '@/server-actions/add-teacher'
 import { useToast } from '@/components/ui/use-toast'
 import { Skeleton } from '@/components/ui/skeleton'
-import removeTeacher from '@/server-actions/delete-teacher'
+import deleteTeacher from '@/server-actions/delete-teacher'
 import Link from 'next/link'
-import { teacher_membership_statuses } from '@/constants/membership-status'
+import { membership_statuses } from '@/constants/membership-status'
 import changeTeacherInfo from '@/server-actions/change-teacher-info'
-import {
-  redirect,
-  useParams,
-  usePathname,
-  useSearchParams
-} from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import PaginationBar from '@/components/custom/pagination-bar'
 import { isNumber } from 'lodash'
-import { format } from 'date-fns'
 
 export default function Page () {
   const [search, setSearch] = useState('')
@@ -109,7 +102,19 @@ export default function Page () {
   const { user } = useUser()
 
   const form = useForm<z.infer<typeof teacherEntrySchema>>({
-    resolver: zodResolver(teacherEntrySchema)
+    resolver: zodResolver(teacherEntrySchema),
+    defaultValues: {
+      qualifications: [
+        {
+          courseType: '',
+          courseName: '',
+          collegeName: '',
+          major: '',
+          endDate: '',
+          startDate: ''
+        }
+      ]
+    }
   })
 
   const sortParamsList = useMemo(() => {
@@ -138,7 +143,7 @@ export default function Page () {
 
   const handleDeleteTeacher = async (id: string) => {
     setLoading(prev => ({ ...prev, delete_teacher: true }))
-    const serverMessage = await removeTeacher(id)
+    const serverMessage = await deleteTeacher(id)
     setLoading(prev => ({ ...prev, delete_teacher: false }))
     toast({
       title: serverMessage.heading,
@@ -284,24 +289,26 @@ export default function Page () {
         </Dialog>
       </div>
       <div className='h-[90%] max-h-fit pt-12 pb-8 flex flex-col justify-between items-center'>
-        <Table className=''>
+        <Table className='border'>
           <TableHeader>
             <TableRow>
-              <TableHead>sl no.</TableHead>
+              <TableHead className='border'>sl no.</TableHead>
               {teacherBoardList.map((item, index) => (
-                <TableHead key={index}>{item.name}</TableHead>
+                <TableHead key={index} className='border'>
+                  {item.name}
+                </TableHead>
               ))}
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading.teachers
               ? Array.from({ length: 5 }).map((_, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
+                  <TableRow key={index} className='border'>
+                    <TableCell className='border'>
                       <Skeleton className='h-6 w-6' />
                     </TableCell>
                     {teacherBoardList.map((item, index) => (
-                      <TableCell key={index}>
+                      <TableCell key={index} className='border'>
                         <Skeleton className='h-6 w-auto' />
                       </TableCell>
                     ))}
@@ -309,14 +316,17 @@ export default function Page () {
                 ))
               : teachers_board?.map((teacher, teacher_idx) => (
                   <TableRow key={teacher.teacher_id}>
-                    <TableCell>
+                    <TableCell className='border'>
                       {((Number(pageInfo.active_page) || 1) - 1) *
                         teachersLimitPerBoard +
                         teacher_idx +
                         1}
                     </TableCell>
                     {teacherBoardList.map((item, index) => (
-                      <TableCell key={index} className='p-0 cursor-pointer'>
+                      <TableCell
+                        key={index}
+                        className='p-0 cursor-pointer border'
+                      >
                         <Dialog
                           onOpenChange={e => {
                             setDialogBoxState(prev => ({
@@ -366,7 +376,7 @@ export default function Page () {
                                   <ContextMenuRadioGroup
                                     value={teacher.membership_status}
                                   >
-                                    {teacher_membership_statuses.map(status => (
+                                    {membership_statuses.map(status => (
                                       <ContextMenuRadioItem
                                         key={status.value}
                                         className='cursor-pointer'

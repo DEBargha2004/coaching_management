@@ -12,12 +12,12 @@ import {
 import { Input } from '../ui/input'
 import { CustomTooltipEntryForm } from './custom-tooltip-teacher-entry'
 import { Separator } from '../ui/separator'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
 import { Calendar } from '../ui/calendar'
 import { Dialog, DialogContent, DialogTrigger } from '../ui/dialog'
 import { Button } from '../ui/button'
-import { CalendarIcon, Loader2, PlusCircle, X, XCircleIcon } from 'lucide-react'
+import { CalendarIcon, Loader2, PlusCircle, X } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -26,9 +26,10 @@ import {
   SelectValue
 } from '../ui/select'
 import { months } from '@/constants/months'
-import { ScrollArea } from '../ui/scroll-area'
 import { sexList } from '@/constants/sex'
 import { membership_statuses } from '@/constants/membership-status'
+import CustomCalendar from './custom-calendar'
+import { ArrayElementType } from '@/types/array-element-type'
 
 export default function StudentEntryForm ({
   form,
@@ -37,11 +38,6 @@ export default function StudentEntryForm ({
   form: UseFormReturn<z.infer<typeof studentEntrySchema>>
   onSubmit: (data: z.infer<typeof studentEntrySchema>) => void
 }) {
-  const [dateObject, setDateObject] = useState({
-    month: new Date().getMonth() + 1,
-    year: new Date().getFullYear()
-  })
-
   const parentalRelations = useMemo(() => {
     const relations = [
       { label: 'Father', value: 'father' },
@@ -51,7 +47,9 @@ export default function StudentEntryForm ({
     return relations
   }, [form.watch('parentalInfo')])
 
-  const parentInfoObj = useMemo(() => {
+  const parentInfoObj = useMemo<
+    ArrayElementType<typeof studentEntrySchema._input.parentalInfo>
+  >(() => {
     return {
       firstName: '',
       lastName: '',
@@ -61,10 +59,44 @@ export default function StudentEntryForm ({
     }
   }, [])
 
-  useEffect(() => {
-    const updatedDate = new Date(`${dateObject.month}/01/${dateObject.year}`)
-    form.setValue('dob', format(updatedDate, 'yyyy-MM-dd'))
-  }, [dateObject])
+  const formatAadharNumber = useCallback((aadharNumber: string) => {
+    const formattedAadharNumber = aadharNumber
+      .replaceAll(' ', '')
+      .replace(/\D/g, '')
+      .slice(0, 12)
+
+    if (formattedAadharNumber.length === 0) {
+      return ''
+    }
+    if (Number(formattedAadharNumber) && formattedAadharNumber.length <= 12) {
+      const newFormattedNumber =
+        formattedAadharNumber.length > 4
+          ? formattedAadharNumber.length > 8
+            ? `${formattedAadharNumber.slice(
+                0,
+                4
+              )} ${formattedAadharNumber.slice(
+                4,
+                8
+              )} ${formattedAadharNumber.slice(8)}`
+            : `${formattedAadharNumber.slice(
+                0,
+                4
+              )} ${formattedAadharNumber.slice(4)}`
+          : formattedAadharNumber
+      return newFormattedNumber
+    }
+  }, [])
+
+  const formatPhoneNumber = useCallback((phoneNumber: string) => {
+    const formattedphoneNumber = phoneNumber
+      .replaceAll(' ', '')
+      .replace(/\D/g, '')
+      .slice(0, 10)
+
+    return formattedphoneNumber
+  }, [])
+
   return (
     <Form {...form}>
       <form
@@ -77,7 +109,16 @@ export default function StudentEntryForm ({
             name='firstName'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>First Name</FormLabel>
+                <FormLabel className='flex justify-start items-center'>
+                  First Name
+                  <CustomTooltipEntryForm>
+                    <div>
+                      <p>This is the first name of the student</p>
+                      <Separator className='my-2' />
+                      <p>Required</p>
+                    </div>
+                  </CustomTooltipEntryForm>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder='First Name' {...field} />
                 </FormControl>
@@ -90,7 +131,16 @@ export default function StudentEntryForm ({
             name='lastName'
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Last Name</FormLabel>
+                <FormLabel className='flex justify-start items-center'>
+                  Last Name
+                  <CustomTooltipEntryForm>
+                    <div>
+                      <p>This is the last name of the student</p>
+                      <Separator className='my-2' />
+                      <p>Required</p>
+                    </div>
+                  </CustomTooltipEntryForm>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder='Last Name' {...field} />
                 </FormControl>
@@ -148,6 +198,36 @@ export default function StudentEntryForm ({
         <section>
           <FormField
             control={form.control}
+            name='aadharNumber'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className='flex justify-start items-center'>
+                  Aadhar Number
+                  <CustomTooltipEntryForm>
+                    <div>
+                      <p>This is the Aadhar number of the student</p>
+                      <Separator className='my-2' />
+                      <p>Required</p>
+                    </div>
+                  </CustomTooltipEntryForm>
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder='Aadhar Number'
+                    {...field}
+                    onChange={e =>
+                      field.onChange(formatAadharNumber(e.target.value))
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </section>
+        <section>
+          <FormField
+            control={form.control}
             name='address'
             render={({ field }) => (
               <FormItem>
@@ -176,7 +256,7 @@ export default function StudentEntryForm ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel className='flex justify-start items-center'>
-                  Date Of Birth{' '}
+                  Date Of Birth
                   <CustomTooltipEntryForm>
                     <div>
                       <p>This is the date of birth of the teacher.</p>
@@ -196,81 +276,12 @@ export default function StudentEntryForm ({
                       </Button>
                     </DialogTrigger>
                     <DialogContent className='flex flex-col justify-start items-center gap-1 p-8 w-fit'>
-                      <div className='w-full grid grid-cols-2 gap-3 px-4 mb-5'>
-                        <Select
-                          onValueChange={e =>
-                            setDateObject({
-                              ...dateObject,
-                              month: parseInt(e)
-                            })
-                          }
-                          value={dateObject.month.toString()}
-                        >
-                          <SelectTrigger>
-                            <SelectValue
-                              className='w-full'
-                              placeholder='Month'
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {months.map((month, month_idx) => (
-                              <SelectItem
-                                key={month_idx}
-                                value={month.value.toString()}
-                              >
-                                {month.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          onValueChange={e =>
-                            setDateObject({
-                              ...dateObject,
-                              year: parseInt(e)
-                            })
-                          }
-                          value={dateObject.year.toString()}
-                        >
-                          <SelectTrigger>
-                            <SelectValue
-                              className='w-full'
-                              placeholder='Year'
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Array.from(
-                              { length: new Date().getFullYear() - 1900 + 1 },
-                              (_, i) => 1900 + i
-                            ).map(year => (
-                              <SelectItem key={year} value={year.toString()}>
-                                {year}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <Calendar
-                        mode='single'
-                        selected={new Date(field?.value)}
-                        onSelect={date =>
+                      <CustomCalendar
+                        fieldValue={field?.value}
+                        onDateSelect={date => {
                           field.onChange(
-                            format(date || field?.value, 'yyyy-MM-dd')
+                            format(new Date(date) || field?.value, 'yyyy-MM-dd')
                           )
-                        }
-                        disabled={date =>
-                          date > new Date() || date < new Date('1900-01-01')
-                        }
-                        month={
-                          new Date(field?.value).getTime()
-                            ? new Date(field?.value)
-                            : new Date()
-                        }
-                        onMonthChange={date => {
-                          setDateObject({
-                            month: date.getMonth() + 1,
-                            year: date.getFullYear()
-                          })
                         }}
                       />
                     </DialogContent>
@@ -406,7 +417,14 @@ export default function StudentEntryForm ({
                         </CustomTooltipEntryForm>
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder='Phone' type='number' {...field} />
+                        <Input
+                          placeholder='Phone'
+                          type='any'
+                          {...field}
+                          onChange={e =>
+                            field.onChange(formatPhoneNumber(e.target.value))
+                          }
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -437,13 +455,17 @@ export default function StudentEntryForm ({
               </div>
             </div>
           ))}
+
+          <p className='text-red-800 text-sm my-3'>
+            {form.formState.errors.parentalInfo?.root?.message}
+          </p>
           <Button
-            onClick={() =>
+            onClick={() => {
               form.setValue('parentalInfo', [
                 ...form.getValues('parentalInfo'),
                 parentInfoObj
               ])
-            }
+            }}
             type='button'
             disabled={form.watch('parentalInfo')?.length >= 3}
           >

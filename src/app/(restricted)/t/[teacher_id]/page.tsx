@@ -22,11 +22,12 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import { Badge } from '@/components/ui/badge'
-import { teacher_membership_statuses } from '@/constants/membership-status'
+import { membership_statuses } from '@/constants/membership-status'
 import { sexList } from '@/constants/sex'
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -40,6 +41,8 @@ import { eq } from 'drizzle-orm'
 import getTeacherSchedules from '@/server-actions/get-teacher-schedules'
 import getBatchesOfTeacher from '@/server-actions/get-batches-of-teacher'
 import BatchCard from '@/components/custom/batch-card'
+import getJoiningInfoTeacher from '@/server-actions/get-joining-info-teacher'
+import { getTeacherQualifications } from '@/server-actions/get-teacher-qualifications'
 
 export default async function Page ({
   params
@@ -61,6 +64,8 @@ export default async function Page ({
 
   const schedules = await getTeacherSchedules(teacher_id)
   const batches = await getBatchesOfTeacher(teacher_id)
+  const joining_info = await getJoiningInfoTeacher(teacher_id)
+  const qualifications = await getTeacherQualifications(teacher_id)
 
   if (!fullTeacherInfo_array)
     return (
@@ -155,7 +160,6 @@ export default async function Page ({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <span>
-                    {' '}
                     (
                     {
                       sexList.find(s => s.value === fullTeacherInfo.sex)
@@ -172,20 +176,49 @@ export default async function Page ({
               </Tooltip>
             </TooltipProvider>
           </h1>
-          <Badge
-            variant={
-              fullTeacherInfo.membershipStatus === 'active'
-                ? 'default'
-                : 'outline'
-            }
-            className='mt-1'
-          >
-            {
-              teacher_membership_statuses.find(
-                s => s.value === fullTeacherInfo.membershipStatus
-              )?.name
-            }
-          </Badge>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Badge
+                variant={
+                  fullTeacherInfo.membershipStatus === 'active'
+                    ? 'default'
+                    : 'outline'
+                }
+                className='mt-1 cursor-pointer'
+              >
+                {
+                  membership_statuses.find(
+                    s => s.value === fullTeacherInfo.membershipStatus
+                  )?.name
+                }
+              </Badge>
+            </DialogTrigger>
+            <DialogContent>
+              <Table className='mt-5'>
+                <TableCaption>Joining Dates</TableCaption>
+                <TableHeader>
+                  <TableRow className='border'>
+                    <TableHead className='border'>Joining Date</TableHead>
+                    <TableHead className='border'>Leaving Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {joining_info.result?.map(joining => (
+                    <TableRow key={joining.stayId} className='border'>
+                      <TableCell className='border'>
+                        {format(joining.joiningDate, 'dd-MM-yyyy')}
+                      </TableCell>
+                      <TableCell className='border'>
+                        {joining.leavingDate
+                          ? format(joining.leavingDate, 'dd-MM-yyyy')
+                          : '—'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </DialogContent>
+          </Dialog>
           <div className='flex flex-col justify-center items-center w-[500px] gap-1 text-sm my-3'>
             <p className='text-slate-400 w-1/2 text-center'>
               +91 {fullTeacherInfo.phoneNumber.substring(0, 5)}{' '}
@@ -232,6 +265,44 @@ export default async function Page ({
             upperNode={`₹ ${fullTeacherInfo.salary}`}
             className='w-[calc(33%-10px)]'
           />
+        </div>
+      </ProfilePageSectionWrapper>
+
+      <ProfilePageSectionWrapper classname='w-full mt-10 px-5 pb-10'>
+        <div className='w-full'>
+          <h1 className='text-2xl mb-6'>Qualifications</h1>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className='border'>Course Type</TableHead>
+                <TableHead className='border'>Course Name</TableHead>
+                <TableHead className='border'>Major</TableHead>
+                <TableHead className='border'>Institute</TableHead>
+                <TableHead className='border'>Admission Date</TableHead>
+                <TableHead className='border'>Passing Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {qualifications.result?.map(qual => (
+                <TableRow key={qual.qualification_id} className='border'>
+                  <TableCell className='border'>{qual.course_type}</TableCell>
+                  <TableCell className='border'>{qual.course_name}</TableCell>
+                  <TableCell className='border'>
+                    {qual.major ? qual.major : '—'}
+                  </TableCell>
+                  <TableCell className='border max-w-[300px]'>
+                    {qual.college_name}
+                  </TableCell>
+                  <TableCell className='border'>
+                    {format(qual.start_date, 'dd MMM yyyy')}
+                  </TableCell>
+                  <TableCell className='border'>
+                    {format(qual.end_date, 'dd MMM yyyy')}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </ProfilePageSectionWrapper>
 

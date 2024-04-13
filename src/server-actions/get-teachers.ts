@@ -1,11 +1,7 @@
 'use server'
 
 import { teachersLimitPerBoard } from '@/constants/teacher-board'
-import {
-  teachers_index,
-  teachers_index_first_name,
-  teachers_index_salary
-} from '@/lib/algolia'
+import { teachers_index, teachers_index_salary } from '@/lib/algolia'
 import { drizzle_orm } from '@/lib/drizzle'
 import { teacher } from '@/schema/drizzle/schema'
 import { TeacherTypeBoard } from '@/store/teachers-store'

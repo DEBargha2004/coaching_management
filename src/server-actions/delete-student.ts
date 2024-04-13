@@ -1,36 +1,36 @@
 'use server'
 
-import { teachers_index } from '@/lib/algolia'
+import { students_index } from '@/lib/algolia'
 import { drizzle_orm } from '@/lib/drizzle'
 import {
+  parent,
+  student,
+  studentStayDuration,
   teacher,
-  teacherStayDuration,
-  teachersQualification
+  teacherStayDuration
 } from '@/schema/drizzle/schema'
 import { ServerMessagePOSTType } from '@/types/server-message'
 import { format } from 'date-fns'
 import { and, eq, isNull } from 'drizzle-orm'
 
-export default async function deleteTeacher (
+export default async function deleteStudent (
   id: string
 ): Promise<ServerMessagePOSTType> {
   try {
     //delete stays from db
     await drizzle_orm
-      .delete(teacherStayDuration)
-      .where(eq(teacherStayDuration.teacherId, id))
-    //delete qualifications
-    await drizzle_orm
-      .delete(teachersQualification)
-      .where(eq(teachersQualification.teacherId, id))
+      .delete(studentStayDuration)
+      .where(eq(studentStayDuration.studentId, id))
+    //delete parent from db
+    await drizzle_orm.delete(parent).where(eq(parent.studentId, id))
     //delete from db
-    await drizzle_orm.delete(teacher).where(eq(teacher.teacherId, id))
+    await drizzle_orm.delete(student).where(eq(student.studentId, id))
     //delete from algolia
-    await teachers_index.deleteObject(id.replace('teach_', ''))
+    await students_index.deleteObject(id.replace('stud_', ''))
     return {
       status: 'success',
-      heading: 'Teacher Deleted',
-      description: 'Teacher data has been deleted successfully'
+      heading: 'Student Deleted',
+      description: 'Student data has been deleted successfully'
     }
   } catch (error) {
     console.log(error)

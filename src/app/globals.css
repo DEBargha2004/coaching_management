@@ -70,7 +70,14 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .scroller::-webkit-scrollbar {
-  display: none;
+  width: 6px;
+  background-color: transparent;
+  border-radius: 10px;
+}
+
+.scroller::-webkit-scrollbar-thumb {
+  background-color: rgba(95, 95, 95, 0.473);
+  border-radius: 10px;
 }
 
 .parental .cancel {

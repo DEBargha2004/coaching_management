@@ -34,6 +34,48 @@ export const teacherEntrySchema = z.object({
       return phone.length === 10
     }),
   address: z.string().optional(),
+  qualifications: z
+    .array(
+      z.object({
+        courseName: z
+          .string({ required_error: 'Course name is required' })
+          .min(2, {
+            message: 'Course name is required'
+          }),
+        courseType: z
+          .string({ required_error: 'Course type is required' })
+          .min(2, {
+            message: 'Course type is required'
+          }),
+        major: z.string().optional(),
+        collegeName: z
+          .string({ required_error: 'College name is required' })
+          .min(2, {
+            message: 'College name is required'
+          }),
+        startDate: z
+          .string({ required_error: 'Start date is required' })
+          .refine(
+            date => {
+              return !_.isEmpty(date)
+            },
+            {
+              message: 'Start date is required'
+            }
+          ),
+        endDate: z.string({ required_error: 'End date is required' }).refine(
+          date => {
+            return !_.isEmpty(date)
+          },
+          {
+            message: 'End date is required'
+          }
+        )
+      })
+    )
+    .min(1, {
+      message: 'At least one qualification is required'
+    }),
   sex: z.enum(sexListValues as [string, ...string[]], {
     required_error: 'Sex is required'
   }),

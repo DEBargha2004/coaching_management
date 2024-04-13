@@ -9,7 +9,7 @@ export type BoardItemType = {
   process: (value: any) => any
 }
 
-export const teacherBoardList: BoardItemType[] = [
+export const studentBoardList: BoardItemType[] = [
   {
     name: 'First Name',
     value: 'first_name',
@@ -28,17 +28,6 @@ export const teacherBoardList: BoardItemType[] = [
   {
     name: 'Email',
     value: 'email',
-    process: value => value
-  },
-  {
-    name: 'Address',
-    value: 'address',
-    process: value => value
-  },
-  {
-    name: 'Salary',
-    value: 'salary',
-    beforeText: '₹ ',
     process: value => value
   },
   {
@@ -61,4 +50,4 @@ export const teacherBoardList: BoardItemType[] = [
   }
 ]
 
-export const teachersLimitPerBoard = 10
+export const studentsLimitBoard = 10

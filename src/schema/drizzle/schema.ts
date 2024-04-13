@@ -197,6 +197,33 @@ export const batchTopicStatus = mysqlTable(
   }
 )
 
+export const parent = mysqlTable(
+  'Parent',
+  {
+    parentId: varchar('parent_id', { length: 191 }),
+    studentId: varchar('student_id', { length: 191 })
+      .notNull()
+      .references(() => student.studentId, {
+        onDelete: 'restrict',
+        onUpdate: 'cascade'
+      }),
+    firstName: varchar('first_name', { length: 191 }).notNull(),
+    lastName: varchar('last_name', { length: 191 }).notNull(),
+    email: varchar('email', { length: 191 }),
+    phoneNumber: varchar('phone_number', { length: 191 }).notNull(),
+    createdAt: datetime('created_at', { mode: 'string', fsp: 3 }),
+    relation: varchar('relation', { length: 20 }).notNull()
+  },
+  table => {
+    return {
+      parentParentId: primaryKey({
+        columns: [table.parentId],
+        name: 'Parent_parent_id'
+      })
+    }
+  }
+)
+
 export const payments = mysqlTable(
   'Payments',
   {
@@ -224,18 +251,51 @@ export const payments = mysqlTable(
   }
 )
 
+export const teachersQualification = mysqlTable(
+  'TeachersQualification',
+  {
+    qualificationId: varchar('qualification_id', { length: 191 }).notNull(),
+    courseType: varchar('course_type', { length: 10 }).notNull(),
+    courseName: varchar('course_name', { length: 80 }).notNull(),
+    major: varchar('major', { length: 50 }),
+    teacherId: varchar('teacher_id', { length: 191 })
+      .notNull()
+      .references(() => teacher.teacherId, {
+        onDelete: 'restrict',
+        onUpdate: 'cascade'
+      }),
+    collegeName: varchar('college_name', { length: 191 }).notNull(),
+    startDate: datetime('start_date', { mode: 'string', fsp: 3 }).notNull(),
+    endDate: datetime('end_date', { mode: 'string', fsp: 3 }).notNull(),
+    createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
+      .default(sql`CURRENT_TIMESTAMP(3)`)
+      .notNull()
+  },
+  table => {
+    return {
+      teachersQualificationQualificationId: primaryKey({
+        columns: [table.qualificationId],
+        name: 'TeachersQualification_qualification_id'
+      })
+    }
+  }
+)
+
 export const student = mysqlTable(
   'Student',
   {
     studentId: varchar('student_id', { length: 191 }).notNull(),
+    imageId: varchar('image_id', { length: 191 }),
     firstName: varchar('first_name', { length: 191 }).notNull(),
     lastName: varchar('last_name', { length: 191 }).notNull(),
     dob: datetime('dob', { mode: 'string', fsp: 3 }).notNull(),
     email: varchar('email', { length: 191 }),
     phoneNumber: varchar('phone_number', { length: 191 }).notNull(),
+    aadharNumber: varchar('aadhar_number', { length: 191 }).notNull(),
     address: varchar('address', { length: 191 }),
     sex: varchar('sex', { length: 191 }).notNull(),
     primaryLanguage: varchar('primary_language', { length: 191 }).notNull(),
+    membershipStatus: varchar('membership_status', { length: 100 }).notNull(),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
       .default(sql`CURRENT_TIMESTAMP(3)`)
       .notNull()
@@ -261,12 +321,7 @@ export const studentStayDuration = mysqlTable(
         onDelete: 'restrict',
         onUpdate: 'cascade'
       }),
-    batchId: varchar('batch_id', { length: 191 })
-      .notNull()
-      .references(() => batch.batchId, {
-        onDelete: 'restrict',
-        onUpdate: 'cascade'
-      }),
+
     joiningDate: datetime('joining_date', { mode: 'string', fsp: 3 }).notNull(),
     leavingDate: datetime('leaving_date', { mode: 'string', fsp: 3 }),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
