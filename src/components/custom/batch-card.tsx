@@ -1,6 +1,5 @@
 'use client'
 
-import { Batch } from '@/server-actions/get-batches-of-teacher'
 import { format } from 'date-fns'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
@@ -10,6 +9,7 @@ import woman from '../../../public/woman.png'
 import other from '../../../public/user.png'
 import { AnimatedTooltip } from '../ui/animated-tooltip'
 import getFirebaseImageDownloadURL from '@/server-actions/get-firebase-image-download-url'
+import { Batch } from '@/types/batch'
 
 export default function BatchCard ({ batch }: { batch: Batch }) {
   const [batchImageUrl, setBatchImageUrl] = useState<string>('')
@@ -35,7 +35,7 @@ export default function BatchCard ({ batch }: { batch: Batch }) {
         )}
         <h1 className='text-2xl mt-4 mb-2'>{batch.batch_name}</h1>
         <p className='text-slate-400 text-sm my-2'>
-          {batch.students_count} students
+          {batch.students_count} student{batch.students_count > 1 ? 's' : ''}
         </p>
         <p className='text-muted-foreground text-sm'>
           Created at{' '}

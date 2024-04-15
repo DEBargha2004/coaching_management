@@ -7,23 +7,9 @@ import {
   batchTeachers,
   teacher
 } from '@/schema/drizzle/schema'
+import { Batch, Teacher } from '@/types/batch'
 import { ServerMessageGETType } from '@/types/server-message'
 import { count, eq, sql } from 'drizzle-orm'
-
-type Teacher = {
-  teacher_id: string
-  first_name: string
-  last_name: string
-  sex: string
-}
-
-export type Batch = {
-  batch_id: string
-  batch_name: string | null
-  created_at: string | null
-  teachers: Teacher[]
-  students_count: number
-}
 
 export default async function getBatchesOfTeacher (
   teacher_id: string

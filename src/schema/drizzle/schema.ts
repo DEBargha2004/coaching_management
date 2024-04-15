@@ -1,16 +1,12 @@
 import {
   mysqlTable,
-  mysqlSchema,
-  AnyMySqlColumn,
   primaryKey,
   varchar,
   datetime,
-  foreignKey,
   mysqlEnum,
   int,
   unique,
   double,
-  boolean,
   time
 } from 'drizzle-orm/mysql-core'
 import { sql } from 'drizzle-orm'
@@ -134,13 +130,13 @@ export const batchTimings = mysqlTable(
       }),
     teacherId: varchar('teacher_id', { length: 191 })
       .notNull()
-      .references(() => teacher.teacherId, {
+      .references(() => batchTeachers.teacherId, {
         onDelete: 'restrict',
         onUpdate: 'cascade'
       }),
     subjectId: varchar('subject_id', { length: 191 })
       .notNull()
-      .references(() => subject.subjectId, {
+      .references(() => batchSubjects.subjectId, {
         onDelete: 'restrict',
         onUpdate: 'cascade'
       }),

@@ -1,6 +1,4 @@
-import { storageDB } from '@/lib/firebase'
 import getFullInfoTeacher from '@/server-actions/get-all-info-teacher'
-import { getDownloadURL, ref } from 'firebase/storage'
 import Image from 'next/image'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import man from '../../../../../public/man.png'
@@ -14,7 +12,7 @@ import {
   parse
 } from 'date-fns'
 import { Separator } from '@/components/ui/separator'
-import { SmallCard } from './_components/cards'
+import { SmallCard } from '../../../../components/custom/cards'
 import {
   Tooltip,
   TooltipContent,
@@ -33,11 +31,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import ProfilePageSectionWrapper from './_components/profilePageSectionWrapper'
-import { drizzle_orm } from '@/lib/drizzle'
-import { batchTimings } from '@/schema/drizzle/schema'
-import { auth } from '@clerk/nextjs'
-import { eq } from 'drizzle-orm'
+import ProfilePageSectionWrapper from '../../../../components/custom/profilePageSectionWrapper'
 import getTeacherSchedules from '@/server-actions/get-teacher-schedules'
 import getBatchesOfTeacher from '@/server-actions/get-batches-of-teacher'
 import BatchCard from '@/components/custom/batch-card'

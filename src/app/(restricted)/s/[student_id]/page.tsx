@@ -1,5 +1,5 @@
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
-import ProfilePageSectionWrapper from '../../t/[teacher_id]/_components/profilePageSectionWrapper'
+import ProfilePageSectionWrapper from '../../../../components/custom/profilePageSectionWrapper'
 import Image from 'next/image'
 import { Eye, Pen } from 'lucide-react'
 import {
@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { SmallCard } from '../../t/[teacher_id]/_components/cards'
+import { SmallCard } from '../../../../components/custom/cards'
 import { Separator } from '@/components/ui/separator'
 import { sexList } from '@/constants/sex'
 import getFullInfoStudent from '@/server-actions/get-all-info-student'
@@ -28,8 +28,16 @@ import man from '../../../../../public/man.png'
 import woman from '../../../../../public/woman.png'
 import user from '../../../../../public/user.png'
 import getJoiningInfoStudent from '@/server-actions/get-joining-info-student'
-import { differenceInCalendarYears, format } from 'date-fns'
+import {
+  differenceInCalendarYears,
+  differenceInMinutes,
+  format,
+  parse
+} from 'date-fns'
 import { parentalRelations } from '@/constants/parental-relations'
+import getStudentSchedules from '@/server-actions/get-student-schedules'
+import getBatchesOfStudent from '@/server-actions/get-batches-of-student'
+import BatchCard from '@/components/custom/batch-card'
 
 export default async function Page ({
   params: { student_id }
@@ -57,10 +65,31 @@ export default async function Page ({
     )
 
   const joining_info = await getJoiningInfoStudent(student_id)
+  const schedules = await getStudentSchedules(student_id)
+  const batches = await getBatchesOfStudent(student_id)
+
   const fullStudentInfo = fullStudentInfo_array_resp?.result?.at(-1)!
   const studenImageUrl = (
     await getFirebaseImageDownloadURL(`student/${fullStudentInfo.studentId}`)
   ).result
+
+  const formatTime = (time: string) => {
+    return format(parse(time, 'HH:mm:ss', new Date()), 'hh:mm a')
+  }
+  const formatDuration = (timeLeft: string, timeRight: string) => {
+    const diff_mins = differenceInMinutes(
+      parse(timeLeft, 'HH:mm:ss', new Date()),
+      parse(timeRight, 'HH:mm:ss', new Date())
+    )
+
+    if (diff_mins >= 60) {
+      return `${Math.floor(diff_mins / 60)}h ${
+        diff_mins % 60 ? `${diff_mins % 60}m` : ''
+      }`
+    } else {
+      return `${diff_mins}m`
+    }
+  }
 
   const studenImageUrlFormatted =
     studenImageUrl ||
@@ -247,6 +276,83 @@ export default async function Page ({
               ))}
             </TableBody>
           </Table>
+        </div>
+      </ProfilePageSectionWrapper>
+      <ProfilePageSectionWrapper classname='w-full my-10 px-5'>
+        <div className='w-full'>
+          <h1 className='text-2xl mb-6'>Schedules</h1>
+          <Table>
+            <TableHeader>
+              <TableRow className='border'>
+                <TableHead className='border'>Day</TableHead>
+                <TableHead className='border'>Batch</TableHead>
+                <TableHead className='border'>Teacher</TableHead>
+                <TableHead className='border'>Subject</TableHead>
+                <TableHead className='border'>Start Time</TableHead>
+                <TableHead className='border'>End Time</TableHead>
+                <TableHead className='border'>Duration</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {schedules.result?.batch_timings_days?.map(day => {
+                const { name: day_name, index: day_index } = day
+                const batch_timings = schedules.result?.batch_timings[day_index]
+
+                return batch_timings?.map((timing_info, timing_info_idx) => {
+                  return (
+                    <TableRow className='border' key={timing_info.timing_id}>
+                      {timing_info_idx === 0 ? (
+                        <TableHead
+                          rowSpan={batch_timings.length}
+                          className='w-[14.28%] border'
+                        >
+                          {day_name}
+                        </TableHead>
+                      ) : null}
+                      <TableCell className='w-[14.28%] border'>
+                        {timing_info.batch_info?.batch_name}
+                      </TableCell>
+                      <TableCell className='w-[14.28%] border'>
+                        {timing_info.teacher_info?.first_name}{' '}
+                        {timing_info.teacher_info?.last_name}
+                      </TableCell>
+                      <TableCell className='w-[14.28%] border'>
+                        {timing_info.subject_info?.subject_name}
+                      </TableCell>
+                      <TableCell className='w-[14.28%] border'>
+                        {timing_info.start_time
+                          ? formatTime(timing_info.start_time.split('.')[0])
+                          : '—'}
+                      </TableCell>
+                      <TableCell className='w-[14.28%] border'>
+                        {timing_info.end_time
+                          ? formatTime(timing_info.end_time.split('.')[0])
+                          : '—'}
+                      </TableCell>
+                      <TableCell className='w-[14.28%] border'>
+                        {timing_info.start_time && timing_info.end_time
+                          ? formatDuration(
+                              timing_info.end_time.split('.')[0],
+                              timing_info.start_time.split('.')[0]
+                            )
+                          : '—'}
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      </ProfilePageSectionWrapper>
+      <ProfilePageSectionWrapper classname='w-full my-10 px-5 '>
+        <div className='w-full'>
+          <h1 className='text-2xl mb-6'>Batches</h1>
+          <div className='grid grid-cols-3 gap-3'>
+            {batches.result?.map(batch => (
+              <BatchCard key={batch.batch_id} batch={batch} />
+            ))}
+          </div>
         </div>
       </ProfilePageSectionWrapper>
     </section>

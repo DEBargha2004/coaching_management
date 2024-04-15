@@ -2,16 +2,9 @@
 
 import { weekdays } from '@/constants/weekdays'
 import { drizzle_orm } from '@/lib/drizzle'
-import {
-  batch,
-  batchTeachers,
-  batchTimings,
-  subject,
-  teacher
-} from '@/schema/drizzle/schema'
+import { batch, batchTimings, subject } from '@/schema/drizzle/schema'
 import { ServerMessageGETType } from '@/types/server-message'
-import { and, eq, sql } from 'drizzle-orm'
-import { alias } from 'drizzle-orm/mysql-core'
+import { eq, sql } from 'drizzle-orm'
 import { groupBy, orderBy } from 'lodash'
 
 type BatchTimings = {
@@ -31,15 +24,10 @@ type BatchTimings = {
 
 type FormattedBatchTimings = Record<string, BatchTimings[]>
 
-type TeacherSchedulesFetched = {
-  teacher_id: string
-  batch_timings: BatchTimings[]
-}
-
 type TeacherSchedulesReturn = {
   teacher_id: string
   batch_timings: FormattedBatchTimings
-  batch_timings_days: { name: string; index: number }[]
+  batch_timings_days: typeof weekdays
 }
 
 export default async function getTeacherSchedules (
@@ -73,15 +61,21 @@ export default async function getTeacherSchedules (
       .groupBy(batchTimings.teacherId)
 
     if (teacherSchedules.length) {
+      //[{...}] => {...}
       let teacherSchedulesObj = teacherSchedules[0]
-      teacherSchedulesObj = teacherSchedulesObj.batch_timings[0].timing_id
-        ? teacherSchedulesObj
-        : { ...teacherSchedulesObj, batch_timings: [] }
+      // remove null values from batch_timings where timing_id is null
+      teacherSchedulesObj.batch_timings =
+        teacherSchedulesObj.batch_timings?.filter(bt =>
+          Boolean(bt.timing_id)
+        ) ?? []
 
+      // group by day_index
+      // [{...},...] => ['key':{...},...]
       let formattedBatchTimings = groupBy(
         teacherSchedulesObj.batch_timings,
         'day_index'
       )
+      // sort timings by start_time
       for (const day in formattedBatchTimings) {
         formattedBatchTimings[day] = orderBy(
           formattedBatchTimings[day],
@@ -90,6 +84,7 @@ export default async function getTeacherSchedules (
       }
 
       let batchTimingDays = Object.keys(formattedBatchTimings)
+
       batchTimingDays = orderBy(batchTimingDays)
 
       const batchTimingsDaysObject = batchTimingDays.map((day, index) => {
