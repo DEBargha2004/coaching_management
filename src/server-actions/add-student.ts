@@ -109,7 +109,8 @@ export async function addStudent (
         phone_number: data.phoneNumber,
         email: data.email,
         address: data.address,
-        membership_status: data.membershipStatus
+        membership_status: data.membershipStatus,
+        aadhar_number: data.aadharNumber
       })
       .wait()
 
@@ -125,7 +126,8 @@ export async function addStudent (
           phone_number: data.phoneNumber,
           email: data.email,
           address: data.address || '',
-          membership_status: data.membershipStatus
+          membership_status: data.membershipStatus,
+          aadhar_number: data.aadharNumber
         }
       ]
     }

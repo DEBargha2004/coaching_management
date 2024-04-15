@@ -236,6 +236,7 @@ export const payments = mysqlTable(
     amount: int('amount').notNull(),
     member: mysqlEnum('member', ['Student', 'Teacher']).notNull(),
     memberId: varchar('member_id', { length: 191 }).notNull(),
+    month: int('month').notNull(),
     paymentDate: datetime('paymentDate', { mode: 'string', fsp: 3 }).notNull(),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
       .default(sql`CURRENT_TIMESTAMP(3)`)
@@ -285,7 +286,6 @@ export const student = mysqlTable(
   'Student',
   {
     studentId: varchar('student_id', { length: 191 }).notNull(),
-    imageId: varchar('image_id', { length: 191 }),
     firstName: varchar('first_name', { length: 191 }).notNull(),
     lastName: varchar('last_name', { length: 191 }).notNull(),
     dob: datetime('dob', { mode: 'string', fsp: 3 }).notNull(),
@@ -441,7 +441,6 @@ export const teacher = mysqlTable(
   'Teacher',
   {
     teacherId: varchar('teacher_id', { length: 191 }).notNull(),
-    imageId: varchar('image_id', { length: 191 }),
     firstName: varchar('first_name', { length: 191 }).notNull(),
     lastName: varchar('last_name', { length: 191 }).notNull(),
     dob: datetime('dob', { mode: 'string', fsp: 3 }).notNull(),

@@ -103,7 +103,7 @@ export const studentEntrySchema = z.object({
         email: z.string().optional()
       })
     )
-    .min(2, {
-      message: 'Parental information of atleast 2 is required'
+    .min(1, {
+      message: 'Parental information of atleast 1 is required'
     })
 })

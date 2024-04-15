@@ -30,7 +30,6 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { teachersLimitPerBoard } from '@/constants/teacher-board'
 import { cn } from '@/lib/utils'
 import { useUser } from '@clerk/nextjs'
 import { BadgeCheck, Eye, Loader2, Pen, Trash2, User2 } from 'lucide-react'
@@ -53,7 +52,6 @@ import StudentEntryForm from '@/components/custom/student-entry-form'
 import { studentBoardList, studentsLimitBoard } from '@/constants/student-board'
 import { addStudent } from '@/server-actions/add-student'
 import deleteStudent from '@/server-actions/delete-student'
-import changeStudentStay from '@/server-actions/change-student-stay'
 import changeStudentInfo from '@/server-actions/change-student-info'
 
 export default function Page () {
@@ -102,7 +100,10 @@ export default function Page () {
   })
 
   const handleFormSubmit = async (data: z.infer<typeof studentEntrySchema>) => {
-    const serverMessage_addStudent = await addStudent(data)
+    const serverMessage_addStudent = await addStudent({
+      ...data,
+      aadharNumber: data.aadharNumber.replaceAll(' ', '')
+    })
     setDialogBoxState(prev => ({ ...prev, student_entry_form: false }))
     alterStudentsBoard(prev => {
       prev.students_board.unshift(...(serverMessage_addStudent.result || []))
@@ -151,7 +152,7 @@ export default function Page () {
     if (prev_status === status) {
       return toast({
         title: 'No change',
-        description: `The teacher's membership status is already ${status}.`,
+        description: `The students's membership status is already ${status}.`,
         variant: 'default'
       })
     }
@@ -200,9 +201,7 @@ export default function Page () {
         : 1
       getStudents({
         search: throttledSearch,
-        offset: activePage_num
-          ? (activePage_num - 1) * teachersLimitPerBoard
-          : 0
+        offset: activePage_num ? (activePage_num - 1) * studentsLimitBoard : 0
       }).then(data => {
         setStudentsBoard(data)
         setLoading(prev => ({ ...prev, get_students: false }))
@@ -280,7 +279,7 @@ export default function Page () {
                   <TableRow key={student.student_id}>
                     <TableCell>
                       {((Number(pageInfo.active_page) || 1) - 1) *
-                        teachersLimitPerBoard +
+                        studentsLimitBoard +
                         student_idx +
                         1}
                     </TableCell>
@@ -307,13 +306,13 @@ export default function Page () {
                               </p>
                             </ContextMenuTrigger>
                             <ContextMenuContent>
-                              <Link href={`/t/${student.student_id}`}>
+                              <Link href={`/s/${student.student_id}`}>
                                 <ContextMenuItem className='cursor-pointer'>
                                   <Eye className='mr-2 h-4 w-4' />
                                   View
                                 </ContextMenuItem>
                               </Link>
-                              <Link href={`/t/${student.student_id}/edit`}>
+                              <Link href={`/s/${student.student_id}/edit`}>
                                 <ContextMenuItem className='cursor-pointer'>
                                   <Pen className='mr-2 h-4 w-4' />
                                   Edit
@@ -356,7 +355,7 @@ export default function Page () {
                             </ContextMenuContent>
                           </ContextMenu>
                           <DialogContent>
-                            <DialogHeader>Delete Teacher</DialogHeader>
+                            <DialogHeader>Delete Student</DialogHeader>
                             <DialogDescription>
                               Are you sure want to delete {student.first_name}{' '}
                               from your database? Remember this is an

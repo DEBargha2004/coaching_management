@@ -9,6 +9,7 @@ export type StudentTypeBoard = {
   address: string | null
   email?: string | null
   membership_status: string
+  aadhar_number: string
 }
 
 type State = {

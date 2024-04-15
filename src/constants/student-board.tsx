@@ -31,6 +31,12 @@ export const studentBoardList: BoardItemType[] = [
     process: value => value
   },
   {
+    name: 'Aadhar Number',
+    value: 'aadhar_number',
+    process: (value: string) =>
+      `${value.slice(0, 4)} ${value.slice(4, 8)} ${value.slice(8, 12)}`
+  },
+  {
     name: 'Membership Status',
     value: 'membership_status',
     process: value => {

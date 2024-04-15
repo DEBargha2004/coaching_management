@@ -1,10 +1,7 @@
 'use server'
 
 import { drizzle_orm } from '@/lib/drizzle'
-import {
-  studentStayDuration,
-  teacherStayDuration
-} from '@/schema/drizzle/schema'
+import { studentStayDuration } from '@/schema/drizzle/schema'
 import { ServerMessagePOSTType } from '@/types/server-message'
 import { format } from 'date-fns'
 import { and, eq, isNull } from 'drizzle-orm'
@@ -32,7 +29,7 @@ export default async function changeStudentStay ({
         .where(
           and(
             eq(studentStayDuration.studentId, student_id),
-            isNull(teacherStayDuration.leavingDate)
+            isNull(studentStayDuration.leavingDate)
           )
         )
       if (student_stays.length) {

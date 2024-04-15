@@ -30,6 +30,7 @@ import { sexList } from '@/constants/sex'
 import { membership_statuses } from '@/constants/membership-status'
 import CustomCalendar from './custom-calendar'
 import { ArrayElementType } from '@/types/array-element-type'
+import { parentalRelations } from '@/constants/parental-relations'
 
 export default function StudentEntryForm ({
   form,
@@ -38,15 +39,6 @@ export default function StudentEntryForm ({
   form: UseFormReturn<z.infer<typeof studentEntrySchema>>
   onSubmit: (data: z.infer<typeof studentEntrySchema>) => void
 }) {
-  const parentalRelations = useMemo(() => {
-    const relations = [
-      { label: 'Father', value: 'father' },
-      { label: 'Mother', value: 'mother' },
-      { label: 'Guardian', value: 'guardian' }
-    ]
-    return relations
-  }, [form.watch('parentalInfo')])
-
   const parentInfoObj = useMemo<
     ArrayElementType<typeof studentEntrySchema._input.parentalInfo>
   >(() => {
@@ -166,7 +158,14 @@ export default function StudentEntryForm ({
                   </CustomTooltipEntryForm>
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder='Phone' type='number' {...field} />
+                  <Input
+                    placeholder='Phone'
+                    type='number'
+                    {...field}
+                    onChange={e =>
+                      field.onChange(formatPhoneNumber(e.target.value))
+                    }
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

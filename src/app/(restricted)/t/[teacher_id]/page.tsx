@@ -43,57 +43,35 @@ import getBatchesOfTeacher from '@/server-actions/get-batches-of-teacher'
 import BatchCard from '@/components/custom/batch-card'
 import getJoiningInfoTeacher from '@/server-actions/get-joining-info-teacher'
 import { getTeacherQualifications } from '@/server-actions/get-teacher-qualifications'
+import getFirebaseImageDownloadURL from '@/server-actions/get-firebase-image-download-url'
 
 export default async function Page ({
-  params
+  params: { teacher_id }
 }: {
   params: { teacher_id: string }
 }) {
-  const { userId } = auth()
-  const teacher_id = params.teacher_id
-
-  if (!userId) {
-    return (
-      <div className='w-full h-full flex justify-center items-center'>
-        Please Login to see the Teacher Profile
-      </div>
-    )
-  }
-
   let fullTeacherInfo_array = await getFullInfoTeacher(teacher_id)
 
+  if (!fullTeacherInfo_array?.at(-1))
+    return (
+      <div className='w-full h-full flex justify-center items-center'>
+        No Teacher Found with id
+        <span className='bg-[#ffffff2a] p-[3px] rounded-lg mx-2'>
+          {teacher_id}
+        </span>
+      </div>
+    )
   const schedules = await getTeacherSchedules(teacher_id)
   const batches = await getBatchesOfTeacher(teacher_id)
   const joining_info = await getJoiningInfoTeacher(teacher_id)
   const qualifications = await getTeacherQualifications(teacher_id)
 
-  if (!fullTeacherInfo_array)
-    return (
-      <div className='w-full h-full flex justify-center items-center'>
-        No Teacher Found with id{' '}
-        <span className='bg-[#ffffff2a] p-[3px] rounded-lg mx-2'>
-          {teacher_id}
-        </span>
-      </div>
-    )
-  const fullTeacherInfo = fullTeacherInfo_array.at(-1)
-  if (!fullTeacherInfo)
-    return (
-      <div className='w-full h-full flex justify-center items-center'>
-        No Teacher Found with id{' '}
-        <span className='bg-[#ffffff2a] p-[3px] rounded-lg mx-2'>
-          {teacher_id}
-        </span>
-      </div>
-    )
+  const fullTeacherInfo = fullTeacherInfo_array.at(-1)!
 
-  const teacherImageUrl = fullTeacherInfo
-    ? fullTeacherInfo.imageId
-      ? await getDownloadURL(
-          ref(storageDB, `teachers/${fullTeacherInfo.imageId}`)
-        )
-      : ''
-    : ''
+  const teacherImageUrl = (
+    await getFirebaseImageDownloadURL(`teacher/${fullTeacherInfo.teacherId}`)
+  ).result
+
   const teacherImageUrlFormatted =
     teacherImageUrl ||
     (fullTeacherInfo ? (fullTeacherInfo.sex === 'male' ? man : woman) : user)
@@ -117,7 +95,7 @@ export default async function Page ({
     }
   }
   return (
-    <section>
+    <section className='py-10'>
       <ProfilePageSectionWrapper>
         <Dialog>
           <DialogTrigger asChild>
@@ -268,7 +246,7 @@ export default async function Page ({
         </div>
       </ProfilePageSectionWrapper>
 
-      <ProfilePageSectionWrapper classname='w-full mt-10 px-5 pb-10'>
+      <ProfilePageSectionWrapper classname='w-full my-10 px-5 '>
         <div className='w-full'>
           <h1 className='text-2xl mb-6'>Qualifications</h1>
           <Table>
@@ -306,7 +284,7 @@ export default async function Page ({
         </div>
       </ProfilePageSectionWrapper>
 
-      <ProfilePageSectionWrapper classname='w-full mt-10 px-5 pb-10'>
+      <ProfilePageSectionWrapper classname='w-full my-10 px-5 '>
         <div className='w-full'>
           <h1 className='text-2xl mb-6'>Schedules</h1>
           <Table>
@@ -371,7 +349,7 @@ export default async function Page ({
           </Table>
         </div>
       </ProfilePageSectionWrapper>
-      <ProfilePageSectionWrapper classname='w-full mt-10 px-5 pb-10'>
+      <ProfilePageSectionWrapper classname='w-full my-10 px-5 '>
         <div className='w-full'>
           <h1 className='text-2xl mb-6'>Batches</h1>
           <div className='grid grid-cols-3 gap-3'>

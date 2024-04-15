@@ -29,7 +29,8 @@ export const getStudents = async ({
           address: student.address,
           student_id: student.studentId,
           email: student.email,
-          membership_status: student.membershipStatus
+          membership_status: student.membershipStatus,
+          aadhar_number: student.aadharNumber
         })
         .from(student)
         .orderBy(student.firstName)
