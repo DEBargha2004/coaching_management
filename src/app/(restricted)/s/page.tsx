@@ -32,7 +32,15 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import { useUser } from '@clerk/nextjs'
-import { BadgeCheck, Eye, Loader2, Pen, Trash2, User2 } from 'lucide-react'
+import {
+  BadgeCheck,
+  Eye,
+  Grip,
+  Loader2,
+  Pen,
+  Trash2,
+  User2
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useThrottle } from '@uidotdev/usehooks'
 import { useForm } from 'react-hook-form'
@@ -53,6 +61,10 @@ import { studentBoardList, studentsLimitBoard } from '@/constants/student-board'
 import { addStudent } from '@/server-actions/add-student'
 import deleteStudent from '@/server-actions/delete-student'
 import changeStudentInfo from '@/server-actions/change-student-info'
+import {
+  HighlightWrapper,
+  UnderlineWrapper
+} from '@/components/custom/text-wrappers'
 
 export default function Page () {
   const [search, setSearch] = useState('')
@@ -259,6 +271,7 @@ export default function Page () {
               {studentBoardList.map((item, index) => (
                 <TableHead key={index}>{item.name}</TableHead>
               ))}
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -273,6 +286,9 @@ export default function Page () {
                         <Skeleton className='h-6 w-auto' />
                       </TableCell>
                     ))}
+                    <TableCell key={index}>
+                      <Skeleton className='h-6 w-14' />
+                    </TableCell>
                   </TableRow>
                 ))
               : students_board?.map((student, student_idx) => (
@@ -285,110 +301,128 @@ export default function Page () {
                     </TableCell>
                     {studentBoardList.map((item, index) => (
                       <TableCell key={index} className='p-0 cursor-pointer'>
-                        <Dialog
-                          onOpenChange={e => {
-                            setDialogBoxState(prev => ({
-                              ...prev,
-                              delete_student: e
-                            }))
-                          }}
-                          open={dialogBoxState.delete_student}
-                        >
-                          <ContextMenu>
-                            <ContextMenuTrigger>
-                              <p className='w-full h-full p-4'>
-                                {item.beforeText}
-                                {item.process(
-                                  student[item.value as keyof typeof student] ||
-                                    '—'
-                                )}
-                                {item.afterText}
-                              </p>
-                            </ContextMenuTrigger>
-                            <ContextMenuContent>
-                              <Link href={`/s/${student.student_id}`}>
-                                <ContextMenuItem className='cursor-pointer'>
-                                  <Eye className='mr-2 h-4 w-4' />
-                                  View
-                                </ContextMenuItem>
-                              </Link>
-                              <Link href={`/s/${student.student_id}/edit`}>
-                                <ContextMenuItem className='cursor-pointer'>
-                                  <Pen className='mr-2 h-4 w-4' />
-                                  Edit
-                                </ContextMenuItem>
-                              </Link>
-                              <DialogTrigger asChild>
-                                <ContextMenuItem className='cursor-pointer'>
-                                  <Trash2 className='mr-2 h-4 w-4' />
-                                  Remove
-                                </ContextMenuItem>
-                              </DialogTrigger>
-                              <ContextMenuSeparator />
-                              <ContextMenuSub>
-                                <ContextMenuSubTrigger className='cursor-pointer'>
-                                  <BadgeCheck className='mr-2 h-4 w-4' />
-                                  Membership
-                                </ContextMenuSubTrigger>
-                                <ContextMenuSubContent>
-                                  <ContextMenuRadioGroup
-                                    value={student.membership_status}
-                                  >
-                                    {membership_statuses.map(status => (
-                                      <ContextMenuRadioItem
-                                        key={status.value}
-                                        className='cursor-pointer'
-                                        value={status.value}
-                                        onClick={() => {
-                                          handleMembershipStatus({
-                                            student_id: student.student_id,
-                                            status: status.value
-                                          })
-                                        }}
-                                      >
-                                        {status.name}
-                                      </ContextMenuRadioItem>
-                                    ))}
-                                  </ContextMenuRadioGroup>
-                                </ContextMenuSubContent>
-                              </ContextMenuSub>
-                            </ContextMenuContent>
-                          </ContextMenu>
-                          <DialogContent>
-                            <DialogHeader>Delete Student</DialogHeader>
-                            <DialogDescription>
-                              Are you sure want to delete {student.first_name}{' '}
-                              from your database? Remember this is an
-                              irreversible action.
-                            </DialogDescription>
-                            <DialogFooter>
-                              <Button
-                                onClick={() => {
-                                  setDialogBoxState(prev => ({
-                                    ...prev,
-                                    delete_student: false
-                                  }))
-                                }}
-                                variant={'secondary'}
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                variant={'destructive'}
-                                onClick={() =>
-                                  handleDeleteStudent(student.student_id)
-                                }
-                              >
-                                {loading.delete_student ? (
-                                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                                ) : null}
-                                Delete
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                        <p className='w-full h-full p-4'>
+                          {item.beforeText}
+                          {item.process(
+                            student[item.value as keyof typeof student] || '—'
+                          )}
+                          {item.afterText}
+                        </p>
                       </TableCell>
                     ))}
+                    <TableCell key={`actions-${student.student_id}`}>
+                      <ContextMenu>
+                        <ContextMenuTrigger asChild>
+                          <Grip className='h-4 w-4 cursor-pointer' />
+                        </ContextMenuTrigger>
+                        <ContextMenuContent>
+                          <Link href={`/s/${student.student_id}`}>
+                            <ContextMenuItem className='cursor-pointer'>
+                              <Eye className='mr-2 h-4 w-4' />
+                              View
+                            </ContextMenuItem>
+                          </Link>
+                          <Link href={`/s/${student.student_id}/edit`}>
+                            <ContextMenuItem className='cursor-pointer'>
+                              <Pen className='mr-2 h-4 w-4' />
+                              Edit
+                            </ContextMenuItem>
+                          </Link>
+                          <Dialog
+                            onOpenChange={e => {
+                              setDialogBoxState(prev => ({
+                                ...prev,
+                                delete_student: e
+                              }))
+                            }}
+                            open={dialogBoxState.delete_student}
+                          >
+                            <DialogTrigger asChild>
+                              <ContextMenuItem
+                                onSelect={e => e.preventDefault()}
+                                className='cursor-pointer'
+                              >
+                                <Trash2 className='mr-2 h-4 w-4' />
+                                Remove
+                              </ContextMenuItem>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <p>
+                                  Delete{' '}
+                                  <HighlightWrapper>
+                                    {student.first_name}
+                                  </HighlightWrapper>
+                                </p>
+                              </DialogHeader>
+                              <DialogDescription>
+                                Are you sure want to delete{' '}
+                                <HighlightWrapper>
+                                  {student.first_name}
+                                </HighlightWrapper>{' '}
+                                from your database? Remember this is an
+                                <UnderlineWrapper className='decoration-red-500'>
+                                  irreversible
+                                </UnderlineWrapper>{' '}
+                                action.
+                              </DialogDescription>
+                              <DialogFooter>
+                                <Button
+                                  onClick={() => {
+                                    setDialogBoxState(prev => ({
+                                      ...prev,
+                                      delete_student: false
+                                    }))
+                                  }}
+                                  variant={'secondary'}
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  variant={'destructive'}
+                                  onClick={() =>
+                                    handleDeleteStudent(student.student_id)
+                                  }
+                                >
+                                  {loading.delete_student ? (
+                                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                  ) : null}
+                                  Delete
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                          <ContextMenuSeparator />
+                          <ContextMenuSub>
+                            <ContextMenuSubTrigger className='cursor-pointer'>
+                              <BadgeCheck className='mr-2 h-4 w-4' />
+                              Membership
+                            </ContextMenuSubTrigger>
+                            <ContextMenuSubContent>
+                              <ContextMenuRadioGroup
+                                value={student.membership_status}
+                              >
+                                {membership_statuses.map(status => (
+                                  <ContextMenuRadioItem
+                                    key={status.value}
+                                    className='cursor-pointer'
+                                    value={status.value}
+                                    onClick={() => {
+                                      handleMembershipStatus({
+                                        student_id: student.student_id,
+                                        status: status.value
+                                      })
+                                    }}
+                                  >
+                                    {status.name}
+                                  </ContextMenuRadioItem>
+                                ))}
+                              </ContextMenuRadioGroup>
+                            </ContextMenuSubContent>
+                          </ContextMenuSub>
+                        </ContextMenuContent>
+                      </ContextMenu>
+                    </TableCell>
                   </TableRow>
                 ))}
           </TableBody>
