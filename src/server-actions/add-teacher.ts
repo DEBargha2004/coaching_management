@@ -1,6 +1,9 @@
 'use server'
 
-import { teacherEntrySchema } from '@/schema/entry-form/teacher'
+import {
+  teacherEntrySchema,
+  TeacherEntrySchemaType
+} from '@/schema/entry-form/teacher'
 import * as z from 'zod'
 import { v4 } from 'uuid'
 import { drizzle_orm } from '@/lib/drizzle'
@@ -13,7 +16,7 @@ import { eq, or } from 'drizzle-orm'
 import changeTeacherStay from './change-teacher-stay'
 
 export async function addTeacher (
-  data: z.infer<typeof teacherEntrySchema>
+  data: TeacherEntrySchemaType
 ): Promise<ServerMessagePOSTType<TeacherTypeBoard[]>> {
   try {
     const { success } = teacherEntrySchema.safeParse(data)

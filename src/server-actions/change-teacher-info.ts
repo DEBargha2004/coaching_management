@@ -2,7 +2,10 @@
 
 import { drizzle_orm } from '@/lib/drizzle'
 import { teacher } from '@/schema/drizzle/schema'
-import { teacherEntrySchema } from '@/schema/entry-form/teacher'
+import {
+  teacherEntrySchema,
+  TeacherEntrySchemaType
+} from '@/schema/entry-form/teacher'
 import { ServerMessagePOSTType } from '@/types/server-message'
 import { format } from 'date-fns'
 import { eq } from 'drizzle-orm'
@@ -15,7 +18,7 @@ export default async function changeTeacherInfo ({
   data
 }: {
   teacher_id: string
-  data: Partial<z.infer<typeof teacherEntrySchema>>
+  data: Partial<TeacherEntrySchemaType>
 }): Promise<ServerMessagePOSTType<typeof data>> {
   try {
     if (data.dob) {

@@ -10,7 +10,7 @@ import {
   FormMessage
 } from '../ui/form'
 import { Input } from '../ui/input'
-import { CustomTooltipEntryForm } from './custom-tooltip-teacher-entry'
+import { CustomTooltipEntryForm } from './custom-tooltip-entry-form'
 import { Separator } from '../ui/separator'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'

@@ -88,3 +88,5 @@ export const teacherEntrySchema = z.object({
     required_error: 'Membership status is required'
   })
 })
+
+export type TeacherEntrySchemaType = z.infer<typeof teacherEntrySchema>

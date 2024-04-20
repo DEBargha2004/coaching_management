@@ -39,6 +39,12 @@ import getJoiningInfoTeacher from '@/server-actions/get-joining-info-teacher'
 import { getTeacherQualifications } from '@/server-actions/get-teacher-qualifications'
 import getFirebaseImageDownloadURL from '@/server-actions/get-firebase-image-download-url'
 
+const user_dummy_image = {
+  man,
+  woman,
+  other: user
+}
+
 export default async function Page ({
   params: { teacher_id }
 }: {
@@ -68,7 +74,9 @@ export default async function Page ({
 
   const teacherImageUrlFormatted =
     teacherImageUrl ||
-    (fullTeacherInfo ? (fullTeacherInfo.sex === 'male' ? man : woman) : user)
+    (fullTeacherInfo
+      ? user_dummy_image[fullTeacherInfo.sex as keyof typeof user_dummy_image]
+      : user)
 
   const formatTime = (time: string) => {
     return format(parse(time, 'HH:mm:ss', new Date()), 'hh:mm a')

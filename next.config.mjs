@@ -7,6 +7,14 @@ jiti('./src/schema/env/server.ts')
 jiti('./src/schema/env/client.ts')
 
 /** @type {import('next').NextConfig} */
-const nextConfig = {}
+const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        hostname: 'cdn-icons-png.flaticon.com'
+      }
+    ]
+  }
+}
 
 export default nextConfig
