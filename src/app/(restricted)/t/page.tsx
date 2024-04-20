@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/context-menu'
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -45,20 +46,14 @@ import { cn } from '@/lib/utils'
 import { getTeachers, getTeachersCount } from '@/server-actions/get-teachers'
 import { useTeachersStore } from '@/store/teachers-store'
 import { useUser } from '@clerk/nextjs'
-import {
-  BadgeCheck,
-  Delete,
-  Eye,
-  Loader2,
-  Pen,
-  Trash2,
-  User2
-} from 'lucide-react'
+import { Edit2, Grip, Loader2, Trash2, User2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useThrottle } from '@uidotdev/usehooks'
 import { useForm } from 'react-hook-form'
-import * as z from 'zod'
-import { teacherEntrySchema } from '@/schema/entry-form/teacher'
+import {
+  teacherEntrySchema,
+  TeacherEntrySchemaType
+} from '@/schema/entry-form/teacher'
 import { zodResolver } from '@hookform/resolvers/zod'
 import TeacherEntryForm from '@/components/custom/teacher-entry-form'
 import { addTeacher } from '@/server-actions/add-teacher'
@@ -71,6 +66,17 @@ import changeTeacherInfo from '@/server-actions/change-teacher-info'
 import { useSearchParams } from 'next/navigation'
 import PaginationBar from '@/components/custom/pagination-bar'
 import { isNumber } from 'lodash'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import {
+  HighlightWrapper,
+  UnderlineWrapper
+} from '@/components/custom/text-wrappers'
+import getTeacherInfoEntryForm from '@/server-actions/get-teacher-info-entry-form'
 
 export default function Page () {
   const [search, setSearch] = useState('')
@@ -84,11 +90,18 @@ export default function Page () {
 
   const [dialogBoxState, setDialogBoxState] = useState({
     teacher_entry_form: false,
-    delete_teacher: false
+    delete_teacher: false,
+    edit_teacher_form: false
   })
   const [loading, setLoading] = useState({
     teachers: true,
-    delete_teacher: false
+    delete_teacher: false,
+    teacher_info: false
+  })
+  const [dropdownState, setDropdownState] = useState({
+    action: {
+      teacher_id: ''
+    }
   })
   const { toast } = useToast()
 
@@ -101,7 +114,7 @@ export default function Page () {
   } = useTeachersStore()
   const { user } = useUser()
 
-  const form = useForm<z.infer<typeof teacherEntrySchema>>({
+  const form = useForm<TeacherEntrySchemaType>({
     resolver: zodResolver(teacherEntrySchema),
     defaultValues: {
       qualifications: [
@@ -124,7 +137,7 @@ export default function Page () {
     }[]
   }, [])
 
-  const handleFormSubmit = async (data: z.infer<typeof teacherEntrySchema>) => {
+  const handleFormSubmit = async (data: TeacherEntrySchemaType) => {
     const serverMessage_addTeacher = await addTeacher(data)
     setDialogBoxState(prev => ({ ...prev, teacher_entry_form: false }))
     alterTeachersBoard(prev => {
@@ -158,6 +171,23 @@ export default function Page () {
       })
     }
     setDialogBoxState(prev => ({ ...prev, delete_teacher: false }))
+  }
+
+  const handleGetTeacherInfo = async (teacher_id: string) => {
+    setLoading(prev => ({ ...prev, teacher_info: true }))
+    const teacher_info = await getTeacherInfoEntryForm(teacher_id)
+    console.log(teacher_info)
+    if (teacher_info.status === 'error') {
+      toast({
+        variant: 'destructive',
+        title: teacher_info.heading,
+        description: teacher_info.description
+      })
+    } else {
+      form.setValue('firstName', teacher_info.result?.firstName || '')
+
+      setLoading(prev => ({ ...prev, teacher_info: false }))
+    }
   }
 
   const handleMembershipStatus = async ({
@@ -246,6 +276,8 @@ export default function Page () {
     }
   }, [user])
 
+  console.log(teachers_board)
+
   return (
     <main className='h-full w-full'>
       <div className='flex justify-between items-center gap-10 h-[10%]'>
@@ -298,6 +330,7 @@ export default function Page () {
                   {item.name}
                 </TableHead>
               ))}
+              <TableHead className='border'>Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -312,6 +345,9 @@ export default function Page () {
                         <Skeleton className='h-6 w-auto' />
                       </TableCell>
                     ))}
+                    <TableCell className='border cursor-pointer'>
+                      <Skeleton className='h-6 w-10' />
+                    </TableCell>
                   </TableRow>
                 ))
               : teachers_board?.map((teacher, teacher_idx) => (
@@ -323,114 +359,113 @@ export default function Page () {
                         1}
                     </TableCell>
                     {teacherBoardList.map((item, index) => (
-                      <TableCell
-                        key={index}
-                        className='p-0 cursor-pointer border'
-                      >
-                        <Dialog
-                          onOpenChange={e => {
-                            setDialogBoxState(prev => ({
-                              ...prev,
-                              delete_teacher: e
-                            }))
-                          }}
-                          open={dialogBoxState.delete_teacher}
-                        >
-                          <ContextMenu>
-                            <ContextMenuTrigger>
-                              <p className='w-full h-full p-4'>
-                                {item.beforeText}
-                                {item.process(
-                                  teacher[item.value as keyof typeof teacher] ||
-                                    '—'
-                                )}
-                                {item.afterText}
-                              </p>
-                            </ContextMenuTrigger>
-                            <ContextMenuContent>
-                              <Link href={`/t/${teacher.teacher_id}`}>
-                                <ContextMenuItem className='cursor-pointer'>
-                                  <Eye className='mr-2 h-4 w-4' />
-                                  View
-                                </ContextMenuItem>
-                              </Link>
-                              <Link href={`/t/${teacher.teacher_id}/edit`}>
-                                <ContextMenuItem className='cursor-pointer'>
-                                  <Pen className='mr-2 h-4 w-4' />
-                                  Edit
-                                </ContextMenuItem>
-                              </Link>
-                              <DialogTrigger asChild>
-                                <ContextMenuItem className='cursor-pointer'>
-                                  <Trash2 className='mr-2 h-4 w-4' />
-                                  Remove
-                                </ContextMenuItem>
-                              </DialogTrigger>
-                              <ContextMenuSeparator />
-                              <ContextMenuSub>
-                                <ContextMenuSubTrigger className='cursor-pointer'>
-                                  <BadgeCheck className='mr-2 h-4 w-4' />
-                                  Membership
-                                </ContextMenuSubTrigger>
-                                <ContextMenuSubContent>
-                                  <ContextMenuRadioGroup
-                                    value={teacher.membership_status}
-                                  >
-                                    {membership_statuses.map(status => (
-                                      <ContextMenuRadioItem
-                                        key={status.value}
-                                        className='cursor-pointer'
-                                        value={status.value}
-                                        onClick={() => {
-                                          handleMembershipStatus({
-                                            teacher_id: teacher.teacher_id,
-                                            status: status.value
-                                          })
-                                        }}
-                                      >
-                                        {status.name}
-                                      </ContextMenuRadioItem>
-                                    ))}
-                                  </ContextMenuRadioGroup>
-                                </ContextMenuSubContent>
-                              </ContextMenuSub>
-                            </ContextMenuContent>
-                          </ContextMenu>
-                          <DialogContent>
-                            <DialogHeader>Delete Teacher</DialogHeader>
-                            <DialogDescription>
-                              Are you sure want to delete {teacher.first_name}{' '}
-                              from your database? Remember this is an
-                              irreversible action.
-                            </DialogDescription>
-                            <DialogFooter>
-                              <Button
-                                onClick={() => {
-                                  setDialogBoxState(prev => ({
-                                    ...prev,
-                                    delete_teacher: false
-                                  }))
-                                }}
-                                variant={'secondary'}
-                              >
-                                Cancel
-                              </Button>
-                              <Button
-                                variant={'destructive'}
-                                onClick={() =>
-                                  handleDeleteTeacher(teacher.teacher_id)
-                                }
-                              >
-                                {loading.delete_teacher ? (
-                                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                                ) : null}
-                                Delete
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
+                      <TableCell key={index} className='cursor-pointer border'>
+                        <p className='w-full h-full p-4'>
+                          {item.beforeText}
+                          {item.process(
+                            teacher[item.value as keyof typeof teacher] || '—'
+                          )}
+                          {item.afterText}
+                        </p>
                       </TableCell>
                     ))}
+                    <TableCell className='h-full cursor-pointer '>
+                      <DropdownMenu
+                        open={
+                          dropdownState.action.teacher_id === teacher.teacher_id
+                        }
+                        onOpenChange={e =>
+                          setDropdownState(prev => ({
+                            ...prev,
+                            action: { teacher_id: e ? teacher.teacher_id : '' }
+                          }))
+                        }
+                      >
+                        <DropdownMenuTrigger asChild>
+                          <Grip className='h-4 w-4 mx-auto' />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <Link href={`/t/${teacher.teacher_id}`}>
+                            <DropdownMenuItem>
+                              <User2 className='mr-2 h-4 w-4' /> Profile
+                            </DropdownMenuItem>
+                          </Link>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <DropdownMenuItem
+                                onSelect={e => {
+                                  e.preventDefault()
+                                  handleGetTeacherInfo(teacher.teacher_id)
+                                }}
+                              >
+                                <Edit2 className='mr-2 h-4 w-4' /> Edit
+                              </DropdownMenuItem>
+                            </DialogTrigger>
+                            <DialogContent>
+                              {loading.teacher_info ? (
+                                <div className='w-full h-full flex justify-center items-center'>
+                                  {<Loader2 className='h-4 w-4 animate-spin' />}
+                                </div>
+                              ) : (
+                                <TeacherEntryForm
+                                  form={form}
+                                  onSubmit={e => console.log(e)}
+                                />
+                              )}
+                            </DialogContent>
+                          </Dialog>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <DropdownMenuItem
+                                onSelect={e => e.preventDefault()}
+                              >
+                                <Trash2 className='mr-2 h-4 w-4' /> Delete
+                              </DropdownMenuItem>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <p>
+                                  Delete{' '}
+                                  <HighlightWrapper>
+                                    {teacher.first_name} {teacher.last_name}
+                                  </HighlightWrapper>
+                                </p>
+                              </DialogHeader>
+                              <DialogDescription>
+                                <p>
+                                  Are you sure you want to delete{' '}
+                                  <HighlightWrapper>
+                                    {teacher.first_name} {teacher.last_name}
+                                  </HighlightWrapper>{' '}
+                                  from database. This is an{' '}
+                                  <UnderlineWrapper className='decoration-red-500'>
+                                    irreversible action
+                                  </UnderlineWrapper>
+                                  and will delete all the data related to this
+                                  teacher.
+                                </p>
+                              </DialogDescription>
+                              <DialogFooter>
+                                <DialogClose>
+                                  <Button variant={'secondary'}>Cancel</Button>
+                                </DialogClose>
+                                <Button
+                                  variant={'destructive'}
+                                  onClick={() =>
+                                    handleDeleteTeacher(teacher.teacher_id)
+                                  }
+                                >
+                                  {loading.delete_teacher ? (
+                                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                                  ) : null}
+                                  Delete
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                   </TableRow>
                 ))}
           </TableBody>

@@ -107,3 +107,5 @@ export const studentEntrySchema = z.object({
       message: 'Parental information of atleast 1 is required'
     })
 })
+
+export type StudentEntrySchemaType = z.infer<typeof studentEntrySchema>

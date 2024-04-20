@@ -7,7 +7,8 @@ import {
   int,
   unique,
   double,
-  time
+  time,
+  boolean
 } from 'drizzle-orm/mysql-core'
 import { sql } from 'drizzle-orm'
 
@@ -19,7 +20,14 @@ export const batch = mysqlTable(
     medium: varchar('medium', { length: 191 }),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
       .default(sql`CURRENT_TIMESTAMP(3)`)
+      .notNull(),
+    trashed: boolean('trashed').notNull().default(false),
+    groupId: varchar('group_id', { length: 191 })
       .notNull()
+      .references(() => group.groupId, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      })
   },
   table => {
     return {
@@ -37,13 +45,13 @@ export const batchStudents = mysqlTable(
     batchId: varchar('batch_id', { length: 191 })
       .notNull()
       .references(() => batch.batchId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     studentId: varchar('student_id', { length: 191 })
       .notNull()
       .references(() => student.studentId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
@@ -66,13 +74,13 @@ export const batchSubjects = mysqlTable(
     subjectId: varchar('subject_id', { length: 191 })
       .notNull()
       .references(() => subject.subjectId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     batchId: varchar('batch_id', { length: 191 })
       .notNull()
       .references(() => batch.batchId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
@@ -95,13 +103,13 @@ export const batchTeachers = mysqlTable(
     batchId: varchar('batch_id', { length: 191 })
       .notNull()
       .references(() => batch.batchId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     teacherId: varchar('teacher_id', { length: 191 })
       .notNull()
       .references(() => teacher.teacherId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
@@ -125,19 +133,19 @@ export const batchTimings = mysqlTable(
     batchId: varchar('batch_id', { length: 191 })
       .notNull()
       .references(() => batch.batchId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     teacherId: varchar('teacher_id', { length: 191 })
       .notNull()
       .references(() => batchTeachers.teacherId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     subjectId: varchar('subject_id', { length: 191 })
       .notNull()
       .references(() => batchSubjects.subjectId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     startTime: time('start_time').notNull(),
@@ -157,19 +165,45 @@ export const batchTimings = mysqlTable(
   }
 )
 
+export const books = mysqlTable(
+  'Books',
+  {
+    bookId: varchar('book_id', { length: 191 }).notNull(),
+    title: varchar('title', { length: 191 }).notNull(),
+    group: varchar('group', { length: 50 }).notNull(),
+    other: varchar('other', { length: 191 }),
+    subjectId: varchar('subject_id', { length: 191 })
+      .notNull()
+      .references(() => subject.subjectId, {
+        onDelete: 'cascade',
+        onUpdate: 'cascade'
+      }),
+    createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
+      .default(sql`CURRENT_TIMESTAMP(3)`)
+      .notNull(),
+    trashed: boolean('trashed').notNull().default(false)
+  },
+  table => ({
+    booksBookId: primaryKey({
+      columns: [table.bookId],
+      name: 'Books_book_id'
+    })
+  })
+)
+
 export const batchTopicStatus = mysqlTable(
   'BatchTopicStatus',
   {
     batchId: varchar('batch_id', { length: 191 })
       .notNull()
       .references(() => batch.batchId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     topicId: varchar('topic_id', { length: 191 })
       .notNull()
       .references(() => topic.topicId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     status: mysqlEnum('status', [
@@ -193,6 +227,27 @@ export const batchTopicStatus = mysqlTable(
   }
 )
 
+export const group = mysqlTable(
+  'Group',
+  {
+    groupId: varchar('group_id', { length: 191 }).notNull(),
+    name: varchar('name', { length: 191 }).notNull().unique(),
+    other: varchar('other', { length: 191 }),
+    createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
+      .default(sql`CURRENT_TIMESTAMP(3)`)
+      .notNull(),
+    trashed: boolean('trashed').notNull().default(false)
+  },
+  table => {
+    return {
+      groupGroupId: primaryKey({
+        columns: [table.groupId],
+        name: 'Group_group_id'
+      })
+    }
+  }
+)
+
 export const parent = mysqlTable(
   'Parent',
   {
@@ -200,7 +255,7 @@ export const parent = mysqlTable(
     studentId: varchar('student_id', { length: 191 })
       .notNull()
       .references(() => student.studentId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     firstName: varchar('first_name', { length: 191 }).notNull(),
@@ -258,7 +313,7 @@ export const teachersQualification = mysqlTable(
     teacherId: varchar('teacher_id', { length: 191 })
       .notNull()
       .references(() => teacher.teacherId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     collegeName: varchar('college_name', { length: 191 }).notNull(),
@@ -314,7 +369,7 @@ export const studentStayDuration = mysqlTable(
     studentId: varchar('student_id', { length: 191 })
       .notNull()
       .references(() => student.studentId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
 
@@ -341,7 +396,8 @@ export const subject = mysqlTable(
     subjectName: varchar('subject_name', { length: 191 }).notNull(),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
       .default(sql`CURRENT_TIMESTAMP(3)`)
-      .notNull()
+      .notNull(),
+    trashed: boolean('trashed').notNull().default(false)
   },
   table => {
     return {
@@ -359,13 +415,13 @@ export const subjectTeachers = mysqlTable(
     subjectId: varchar('subject_id', { length: 191 })
       .notNull()
       .references(() => subject.subjectId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     teacherId: varchar('teacher_id', { length: 191 })
       .notNull()
       .references(() => teacher.teacherId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
@@ -410,13 +466,13 @@ export const syllabusTopic = mysqlTable(
     syllabusId: varchar('syllabus_id', { length: 191 })
       .notNull()
       .references(() => syllabus.syllabusId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     topicId: varchar('topic_id', { length: 191 })
       .notNull()
       .references(() => topic.topicId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     createdAt: datetime('created_at', { mode: 'string', fsp: 3 })
@@ -472,7 +528,7 @@ export const teacherStayDuration = mysqlTable(
     teacherId: varchar('teacher_id', { length: 191 })
       .notNull()
       .references(() => teacher.teacherId, {
-        onDelete: 'restrict',
+        onDelete: 'cascade',
         onUpdate: 'cascade'
       }),
     joiningDate: datetime('joining_date', { mode: 'string', fsp: 3 }).notNull(),

@@ -1,6 +1,9 @@
 'use client'
 
-import { teacherEntrySchema } from '@/schema/entry-form/teacher'
+import {
+  teacherEntrySchema,
+  TeacherEntrySchemaType
+} from '@/schema/entry-form/teacher'
 import { UseFormReturn } from 'react-hook-form'
 import * as z from 'zod'
 import {
@@ -36,7 +39,7 @@ import {
   DialogHeader,
   DialogTrigger
 } from '../ui/dialog'
-import { CustomTooltipEntryForm } from './custom-tooltip-teacher-entry'
+import { CustomTooltipEntryForm } from './custom-tooltip-entry-form'
 import { Separator } from '../ui/separator'
 import { cn } from '@/lib/utils'
 import { membership_statuses } from '@/constants/membership-status'
@@ -53,8 +56,8 @@ export default function TeacherEntryForm ({
   form,
   onSubmit
 }: {
-  form: UseFormReturn<z.infer<typeof teacherEntrySchema>, any, undefined>
-  onSubmit: (data: z.infer<typeof teacherEntrySchema>) => void
+  form: UseFormReturn<TeacherEntrySchemaType, any, undefined>
+  onSubmit: (data: TeacherEntrySchemaType) => void
 }) {
   const [courseNameOther, setCourseNameOther] = useState<string>('')
 
@@ -306,18 +309,18 @@ export default function TeacherEntryForm ({
                                   {qualification.courseType ? (
                                     <>
                                       <SelectSeparator />
-                                      {customCourseNames[qualification_idx].map(
-                                        (courseNames, courseNames_idx) => {
-                                          return (
-                                            <SelectItem
-                                              key={courseNames_idx}
-                                              value={courseNames}
-                                            >
-                                              {courseNames}
-                                            </SelectItem>
-                                          )
-                                        }
-                                      )}
+                                      {customCourseNames[
+                                        qualification_idx
+                                      ]?.map((courseNames, courseNames_idx) => {
+                                        return (
+                                          <SelectItem
+                                            key={courseNames_idx}
+                                            value={courseNames}
+                                          >
+                                            {courseNames}
+                                          </SelectItem>
+                                        )
+                                      })}
                                       <DialogTrigger asChild>
                                         <div className='flex justify-start items-center gap-2 text-sm cursor-pointer p-2 hover:bg-muted rounded'>
                                           <span className='h-4 w-4' />
