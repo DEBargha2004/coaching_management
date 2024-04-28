@@ -1,51 +1,51 @@
-import { GroupEntrySchemaType } from '@/schema/entry-form/group'
-import { UseFormReturn } from 'react-hook-form'
-import { Form, FormField, FormItem, FormLabel, FormMessage } from '../ui/form'
-import { Input } from '../ui/input'
-import { Button } from '../ui/button'
-import { Loader2 } from 'lucide-react'
+import { GroupEntrySchemaType } from "@/schema/entry-form/group";
+import { UseFormReturn } from "react-hook-form";
+import { Form, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Loader2 } from "lucide-react";
 
-export default function GroupEntryForm ({
+export default function GroupEntryForm({
   form,
   onSubmit,
-  buttonLabel = 'Create'
+  buttonLabel = "Create",
 }: {
-  form: UseFormReturn<GroupEntrySchemaType, any, undefined>
-  onSubmit: (data: GroupEntrySchemaType) => void
-  buttonLabel?: string
+  form: UseFormReturn<GroupEntrySchemaType, any, undefined>;
+  onSubmit: (data: GroupEntrySchemaType) => void;
+  buttonLabel?: string;
 }) {
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <FormField
           control={form.control}
-          name='name'
+          name="name"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Group Name</FormLabel>
-              <Input placeholder='Enter name' {...field} />
+              <Input placeholder="Enter name" {...field} />
               <FormMessage />
             </FormItem>
           )}
         />
         <FormField
           control={form.control}
-          name='other'
+          name="description"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Description</FormLabel>
-              <Input placeholder='Enter description' {...field} />
+              <Input placeholder="Enter description" {...field} />
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button className='w-full'>
+        <Button className="w-full">
           {form.formState.isSubmitting ? (
-            <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : null}
           {buttonLabel}
         </Button>
       </form>
     </Form>
-  )
+  );
 }

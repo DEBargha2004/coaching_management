@@ -1,14 +1,14 @@
-import * as z from 'zod'
+import * as z from "zod";
 
 export const groupEntrySchema = z.object({
   name: z
     .string({
-      required_error: 'Group name is required'
+      required_error: "Group name is required",
     })
     .min(1, {
-      message: 'Group name is required'
+      message: "Group name is required",
     }),
-  other: z.string().optional()
-})
+  description: z.string().optional(),
+});
 
-export type GroupEntrySchemaType = z.infer<typeof groupEntrySchema>
+export type GroupEntrySchemaType = z.infer<typeof groupEntrySchema>;

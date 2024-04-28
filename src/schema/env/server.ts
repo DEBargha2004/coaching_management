@@ -1,5 +1,5 @@
-import { createEnv } from '@t3-oss/env-nextjs'
-import * as z from 'zod'
+import { createEnv } from "@t3-oss/env-nextjs";
+import * as z from "zod";
 
 export const env = createEnv({
   server: {
@@ -22,7 +22,8 @@ export const env = createEnv({
     ALGOLIA_STUDENTS_INDEX_NAME: z.string(),
     ALGOLIA_TEACHERS_INDEX_NAME: z.string(),
     ALGOLIA_TEACHERS_SALARY_INDEX_NAME: z.string(),
-    DATABASE_URL: z.string()
+    ALGOLIA_BOOKS_INDEX_NAME: z.string(),
+    DATABASE_URL: z.string(),
   },
   runtimeEnv: {
     DB_USERNAME: process.env.DB_USERNAME,
@@ -45,6 +46,7 @@ export const env = createEnv({
     ALGOLIA_TEACHERS_INDEX_NAME: process.env.ALGOLIA_TEACHERS_INDEX_NAME,
     ALGOLIA_TEACHERS_SALARY_INDEX_NAME:
       process.env.ALGOLIA_TEACHERS_SALARY_INDEX_NAME,
-    DATABASE_URL: process.env.DATABASE_URL
-  }
-})
+    ALGOLIA_BOOKS_INDEX_NAME: process.env.ALGOLIA_BOOKS_INDEX_NAME,
+    DATABASE_URL: process.env.DATABASE_URL,
+  },
+});
